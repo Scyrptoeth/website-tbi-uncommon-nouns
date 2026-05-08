@@ -17,11 +17,10 @@ const monoFont = DM_Mono({
   display: "swap",
 });
 
-
 export const metadata: Metadata = {
-  title: "TBI - Uncommon Nouns | Persiapantubel",
+  title: "TBI - Noun Classifier | Persiapantubel",
   description:
-    "Materi, flipcard, dan tes uncommon uncountable serta countable nouns untuk siswa Persiapantubel.",
+    "Materi, flipcard, dan tes klasifikasi common uncountable serta countable nouns untuk siswa Persiapantubel.",
 };
 
 export default function RootLayout({

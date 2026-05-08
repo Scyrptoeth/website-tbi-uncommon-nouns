@@ -1,13 +1,13 @@
-# TBI - Uncommon Nouns
+# TBI - Noun Classifier
 
-Website pembelajaran Persiapantubel untuk uncommon uncountable nouns dan countable nouns.
+Website pembelajaran Persiapantubel untuk mengenali common uncountable nouns dan countable nouns.
 
 ## Scope
 
-- 100 uncommon uncountable nouns.
-- 100 uncommon countable nouns.
+- 100 common uncountable nouns.
+- 100 common countable nouns.
 - 20 paket tes.
-- 200 soal pilihan ganda.
+- 200 soal klasifikasi pilihan A/B.
 - Materi, Flipcard, Tes, progress chart, dan ringkasan SuperAdmin.
 - Progress demo tersimpan di browser localStorage.
 
@@ -22,4 +22,4 @@ npm run build
 
 ## Production Notes
 
-Rilis live pertama ini memakai seed data di source agar bisa langsung deploy tanpa secret database. Fase berikutnya memindahkan progress, auth Nomor WA, SuperAdmin CMS, dan attempt history ke PostgreSQL sesuai grand design.
+Rilis ini memakai seed data di source agar bisa langsung deploy tanpa secret database. Dataset specialized lama disimpan di `docs/archive/` dan tidak dirender di website. Fase berikutnya memindahkan progress, auth Nomor WA, SuperAdmin CMS, dan attempt history ke PostgreSQL sesuai grand design.

@@ -1,14 +1,14 @@
 # Grand Design Website TBI Uncommon Uncountable and Countable Noun
 
 Date: 2026-05-09
-Status: Ready-to-develop grand design, no application code yet
+Status: Implemented MVP with common noun classification pivot
 Formal project name: Website-TBI-Uncommon-Uncountable-and-Countable-Noun
-Recommended public title: TBI - Uncommon Nouns
+Recommended public title: TBI - Noun Classifier
 Owner: Bimbel Persiapantubel
 
 ## 1. Executive Summary
 
-Website TBI Uncommon Uncountable and Countable Noun is a focused web learning product for Bimbel Persiapantubel students preparing for Tes Bahasa Inggris. The product helps students master uncommon uncountable nouns and uncommon countable nouns that are useful in TOEFL, TOEIC, and IELTS-style contexts.
+Website TBI Uncommon Uncountable and Countable Noun is a focused web learning product for Bimbel Persiapantubel students preparing for Tes Bahasa Inggris. The current MVP helps students recognize common uncountable nouns and common countable nouns across varied everyday contexts before moving into harder test-prep noun behavior.
 
 The product has three core tools:
 
@@ -45,8 +45,9 @@ Recommended identity direction:
 
 ## 3. Key Product Decisions
 
-- Use "TBI - Uncommon Nouns" as the recommended public title because the app covers both uncountable and countable nouns.
+- Use "TBI - Noun Classifier" as the current public title because the active learning goal is classifying whether a noun is uncountable or countable.
 - Keep the formal project/documentation name as Website-TBI-Uncommon-Uncountable-and-Countable-Noun.
+- Keep the original specialized/uncommon seed list archived in source control and out of the student UI.
 - Use database-backed student progress. LocalStorage-only progress is not enough for ecosystem readiness.
 - Use registered WhatsApp number + password authentication, aligned with the existing TBI verbs project.
 - Use PostgreSQL as operational storage.
@@ -60,13 +61,11 @@ Recommended identity direction:
 
 ### 4.1 Initial Content Target
 
-- 100 uncommon uncountable nouns.
-- 100 uncommon countable nouns.
-- 100 uncountable-noun test questions.
-- 100 countable-noun test questions.
+- 100 common uncountable nouns.
+- 100 common countable nouns.
+- 200 A/B classification questions.
 - 20 total test packages:
-  - 10 uncountable packages.
-  - 10 countable packages.
+  - 20 mixed classification packages.
   - 10 questions per package.
 
 ### 4.2 Noun Entry Fields

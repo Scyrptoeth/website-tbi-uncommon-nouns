@@ -2,11 +2,11 @@
 
 Project: Website-TBI-Uncommon-Uncountable-and-Countable-Noun
 Date: 2026-05-09
-Status: Initial guide for future content work
+Status: Updated guide for common noun classification MVP
 
 ## 1. Purpose
 
-This guide defines how to curate the initial 100 uncommon uncountable nouns, 100 uncommon countable nouns, and 200 test questions without relying on leaked, copyrighted, or unverifiable exam content.
+This guide defines how to curate the active 100 common uncountable nouns, 100 common countable nouns, and 200 A/B classification questions without relying on leaked, copyrighted, or unverifiable exam content.
 
 ## 2. Source Hierarchy
 
@@ -24,11 +24,25 @@ Avoid:
 - Claiming "appeared in TOEFL/TOEIC/IELTS" without structured source evidence.
 - Unverified internet word lists.
 
-## 3. Definition Of "Uncommon"
+## 3. Definition Of "Common"
 
-A noun qualifies as uncommon if it meets at least two criteria:
+A noun qualifies for the current common list if it meets at least two criteria:
 
-- Frequently confuses Indonesian learners.
+- Commonly appears in school, home, food, travel, work, technology, nature, or everyday conversation.
+- Has a countability pattern students can apply in TBI grammar questions.
+- Frequently confuses Indonesian learners because Indonesian does not mark countability in the same way.
+- Can be explained with a natural Indonesian meaning and a natural quantity/plural form.
+- Is not narrowly specialized to a technical, legal, scientific, or professional field.
+
+Avoid active-list nouns that are mainly advanced, obscure, or domain-specific. Put those in a future advanced/uncommon set instead.
+
+Historical archive note:
+
+- The previous specialized/uncommon seed list is preserved in `docs/archive/specialized-content-2026-05-09.ts.txt`.
+- Archived content must not be imported into the active website unless a future advanced module is explicitly planned.
+
+Advanced noun candidates can still be tracked separately if they meet at least two criteria:
+
 - Has countability behavior that differs from Indonesian intuition.
 - Appears in academic, business, administrative, scientific, or test-prep contexts.
 - Has an irregular or non-obvious plural form.

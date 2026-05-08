@@ -21,7 +21,7 @@ import { contentStats, nounEntries, testPackages, type NounType } from "@/lib/co
 
 type View = "dashboard" | "materi" | "flipcard" | "tes" | "admin";
 type Filter = "all" | NounType;
-type OptionKey = "A" | "B" | "C" | "D";
+type OptionKey = "A" | "B";
 
 type AttemptState = {
   answers: Record<string, OptionKey>;
@@ -41,7 +41,7 @@ const emptyProgress: ProgressState = {
   submitted: {},
 };
 
-const storageKey = "tbi-uncommon-nouns-progress-v1";
+const storageKey = "tbi-common-noun-classifier-progress-v2";
 
 const views: Array<{ id: View; label: string; icon: ComponentType<{ size?: number }> }> = [
   { id: "dashboard", label: "Dashboard", icon: BarChart3 },
@@ -54,6 +54,10 @@ const views: Array<{ id: View; label: string; icon: ComponentType<{ size?: numbe
 const nounTypeLabel: Record<NounType, string> = {
   uncountable: "Uncountable",
   countable: "Countable",
+};
+
+const packageTypeLabel = {
+  mixed: "Klasifikasi campuran",
 };
 
 const readProgress = (): ProgressState => {
@@ -139,10 +143,10 @@ function Dashboard({
       <section className="dashboard-hero">
         <div className="max-w-3xl">
           <p className="eyebrow">Persiapantubel TBI</p>
-          <h1>TBI - Uncommon Nouns</h1>
+          <h1>TBI - Noun Classifier</h1>
           <p>
-            Latihan focused untuk uncommon uncountable nouns dan countable nouns dengan materi,
-            flipcard, tes paket, dan progres belajar yang tersimpan di browser.
+            Latihan focused untuk mengenali common uncountable nouns dan countable nouns dengan
+            materi, flipcard, tes klasifikasi, dan progres belajar yang tersimpan di browser.
           </p>
         </div>
         <div className="hero-mark" aria-hidden="true">
@@ -436,7 +440,7 @@ function TestPanel({
             >
               <span>
                 <strong>{item.title}</strong>
-                <small>{nounTypeLabel[item.nounType]} - 10 soal</small>
+                <small>{packageTypeLabel[item.packageType]} - 10 soal</small>
               </span>
               {isSubmitted ? <CheckCircle2 aria-hidden="true" /> : isDraft ? <Sparkles aria-hidden="true" /> : null}
             </button>
@@ -541,10 +545,10 @@ function AdminPanel({ progress }: { progress: ProgressState }) {
       </header>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <StatBlock label="Uncountable" value={contentStats.uncountable} total={100} tone="teal" />
-        <StatBlock label="Countable" value={contentStats.countable} total={100} tone="amber" />
-        <StatBlock label="Questions" value={contentStats.questions} total={200} tone="ink" />
-        <StatBlock label="Packages" value={contentStats.packages} total={20} tone="teal" />
+        <StatBlock label="Uncountable" value={contentStats.uncountableCount} total={100} tone="teal" />
+        <StatBlock label="Countable" value={contentStats.countableCount} total={100} tone="amber" />
+        <StatBlock label="Questions" value={contentStats.totalQuestions} total={200} tone="ink" />
+        <StatBlock label="Packages" value={contentStats.totalPackages} total={20} tone="teal" />
       </div>
 
       <section className="panel p-5">
