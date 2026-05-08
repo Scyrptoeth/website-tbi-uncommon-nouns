@@ -18,6 +18,12 @@ The product has three core tools:
 
 The project should be designed production-ready from the start. Content should be manageable through SuperAdmin workflows, progress should persist by student account, and the architecture should be compatible with the future Ekosistem Persiapantubel.
 
+Current implementation companion docs:
+
+- `docs/content-qa-report-2026-05-09.md`
+- `docs/persistence-and-admin-roadmap.md`
+- `docs/advanced-module-strategy.md`
+
 ## 2. Product Positioning
 
 ### 2.1 Target Users

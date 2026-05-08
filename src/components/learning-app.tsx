@@ -225,11 +225,12 @@ function Materi() {
         </div>
       </header>
 
-      <div className="segmented" aria-label="Filter materi">
+      <div className="segmented" role="group" aria-label="Filter materi">
         {(["all", "uncountable", "countable"] as const).map((item) => (
           <button
             key={item}
             type="button"
+            aria-pressed={filter === item}
             className={filter === item ? "active" : ""}
             onClick={() => setFilter(item)}
           >
@@ -313,11 +314,12 @@ function Flipcard({
         </span>
       </header>
 
-      <div className="segmented" aria-label="Filter flipcard">
+      <div className="segmented" role="group" aria-label="Filter flipcard">
         {(["all", "uncountable", "countable"] as const).map((item) => (
           <button
             key={item}
             type="button"
+            aria-pressed={filter === item}
             className={filter === item ? "active" : ""}
             onClick={() => {
               setFilter(item);
@@ -334,14 +336,15 @@ function Flipcard({
         type="button"
         className={`flipcard ${flipped ? "is-flipped" : ""}`}
         onClick={() => setFlipped((value) => !value)}
+        aria-expanded={flipped}
         aria-label={`Balik kartu ${card.displayNoun}`}
       >
-        <span className="flip-face flip-front">
+        <span className="flip-face flip-front" aria-hidden={flipped}>
           <TypeBadge type={card.nounType} />
           <strong>{card.displayNoun}</strong>
           <small>{card.topic}</small>
         </span>
-        <span className="flip-face flip-back">
+        <span className="flip-face flip-back" aria-hidden={!flipped}>
           <TypeBadge type={card.nounType} />
           <strong>{card.meaning}</strong>
           <span>
@@ -435,6 +438,7 @@ function TestPanel({
             <button
               key={item.slug}
               type="button"
+              aria-current={selectedSlug === item.slug ? "true" : undefined}
               className={selectedSlug === item.slug ? "active" : ""}
               onClick={() => setSelectedSlug(item.slug)}
             >
@@ -483,6 +487,7 @@ function TestPanel({
                         key={option.key}
                         type="button"
                         disabled={Boolean(submitted)}
+                        aria-pressed={isSelected}
                         className={[
                           "option-button",
                           isSelected ? "selected" : "",
@@ -599,6 +604,7 @@ export function LearningApp() {
                   key={item.id}
                   type="button"
                   aria-label={item.label}
+                  aria-current={view === item.id ? "page" : undefined}
                   className={view === item.id ? "active" : ""}
                   onClick={() => setView(item.id)}
                 >

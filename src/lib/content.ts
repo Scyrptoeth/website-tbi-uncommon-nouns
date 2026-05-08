@@ -17,6 +17,7 @@ export type NounEntry = {
   accessedAt: string;
   claimAllowed: false;
   sourceNote: string;
+  classificationHint?: string;
   quantityExpression?: string;
   countableAlternative?: string;
   singularForm?: string;
@@ -102,7 +103,7 @@ const uncountableSeeds = [
   ["information", "informasi", "a piece of information", "communication"],
   ["news", "berita", "a piece of news", "communication"],
   ["knowledge", "pengetahuan", "a body of knowledge", "school"],
-  ["research", "penelitian", "a piece of research", "school"],
+  ["research", "penelitian", "a research project", "school"],
   ["evidence", "bukti", "a piece of evidence", "communication"],
   ["furniture", "perabotan", "a piece of furniture", "home"],
   ["luggage", "barang bawaan", "a piece of luggage", "travel"],
@@ -164,6 +165,27 @@ const uncountableSeeds = [
   ["oxygen", "oksigen", "a supply of oxygen", "health"],
   ["smoke", "asap", "a cloud of smoke", "nature"],
 ] as const;
+
+const uncountableClassificationHints: Record<string, string> = {
+  cereal: "sereal sebagai makanan secara umum, bukan satu merek atau jenis sereal tertentu",
+  coffee: "kopi sebagai minuman secara umum, bukan satu cangkir pesanan",
+  food: "makanan secara umum, bukan satu jenis makanan tertentu",
+  glass: "kaca sebagai bahan, bukan satu gelas minum",
+  hair: "rambut sebagai massa di kepala atau tubuh, bukan satu helai rambut",
+  ice: "es sebagai zat/bahan, bukan satu balok atau kubus es",
+  light: "cahaya secara umum, bukan satu lampu",
+  medicine: "obat sebagai zat/perawatan secara umum, bukan satu pil tertentu",
+  paper: "kertas sebagai bahan, bukan makalah atau artikel",
+  tea: "teh sebagai minuman secara umum, bukan satu cangkir pesanan",
+  work: "pekerjaan atau aktivitas kerja secara umum, bukan karya seni atau satu tugas tertentu",
+};
+
+const countableClassificationHints: Record<string, string> = {
+  class: "satu kelas atau sesi belajar, bukan status sosial secara umum",
+  dish: "satu piring atau satu hidangan, bukan makanan sebagai massa umum",
+  email: "satu pesan email, bukan sistem atau metode komunikasi email",
+  room: "satu ruangan fisik, bukan ruang/kesempatan secara abstrak",
+};
 
 const countableSeeds = [
   ["apple", "apples", "apel", "food and drink"],
@@ -270,7 +292,7 @@ const countableSeeds = [
 
 const maybePluralize = (noun: string) => {
   if (noun.endsWith("y")) return `${noun.slice(0, -1)}ies`;
-  if (noun.endsWith("s") || noun.endsWith("x") || noun.endsWith("ch")) return `${noun}es`;
+  if (noun.endsWith("s") || noun.endsWith("x") || noun.endsWith("ch") || noun.endsWith("sh")) return `${noun}es`;
   if (noun.endsWith("f")) return `${noun.slice(0, -1)}ves`;
   return `${noun}s`;
 };
@@ -283,8 +305,13 @@ export const nounEntries: NounEntry[] = [
     meaning,
     topic,
     difficulty: difficultyByIndex(index),
-    usageNote: `${displayNoun} dipakai sebagai uncountable noun saat yang dimaksud adalah zat, konsep, atau massa yang tidak dihitung satu per satu.`,
-    commonMistake: `Hindari bentuk *${maybePluralize(displayNoun)}* untuk makna ini dan gunakan frasa jumlah seperti "${quantityExpression}" jika perlu menghitung satuannya.`,
+    usageNote: `${displayNoun} dipakai sebagai uncountable noun saat yang dimaksud adalah zat, konsep, atau massa yang tidak dihitung satu per satu.${
+      uncountableClassificationHints[displayNoun]
+        ? ` Dalam latihan ini konteksnya: ${uncountableClassificationHints[displayNoun]}.`
+        : ""
+    }`,
+    commonMistake: `Jangan menambahkan -s/-es untuk makna ini. Jika perlu menghitung satuannya, gunakan frasa jumlah seperti "${quantityExpression}".`,
+    classificationHint: uncountableClassificationHints[displayNoun],
     quantityExpression,
     countableAlternative: quantityExpression,
     ...source,
@@ -296,8 +323,17 @@ export const nounEntries: NounEntry[] = [
     meaning,
     topic,
     difficulty: difficultyByIndex(index),
-    usageNote: `${singularForm} adalah countable noun; gunakan bentuk tunggal untuk satu benda/orang dan bentuk jamak untuk lebih dari satu.`,
-    commonMistake: `Jangan gunakan ${singularForm} sebagai massa umum; setelah many, several, atau angka lebih dari satu, gunakan bentuk jamak "${pluralForm}".`,
+    usageNote: `${singularForm} adalah countable noun; gunakan bentuk tunggal untuk satu benda/orang dan bentuk jamak untuk lebih dari satu.${
+      countableClassificationHints[singularForm]
+        ? ` Dalam latihan ini konteksnya: ${countableClassificationHints[singularForm]}.`
+        : ""
+    }`,
+    commonMistake: `Setelah many, several, atau angka lebih dari satu, gunakan bentuk jamak "${pluralForm}".${
+      countableClassificationHints[singularForm]
+        ? ` Jangan pakai konteks massa/abstrak saat menjawab soal ini.`
+        : ""
+    }`,
+    classificationHint: countableClassificationHints[singularForm],
     singularForm,
     pluralForm,
     pluralType: pluralForm === maybePluralize(singularForm) ? ("regular" as const) : ("irregular" as const),
@@ -312,6 +348,8 @@ const classificationOptions = [
 
 const buildClassificationQuestion = (entry: NounEntry, packageSlug: string): Question => {
   const answerKey = entry.nounType === "uncountable" ? "A" : "B";
+  const promptContext = entry.classificationHint ? ` dalam konteks ${entry.classificationHint}` : "";
+  const explanationContext = entry.classificationHint ? `Dalam soal ini, konteksnya adalah ${entry.classificationHint}. ` : "";
   const evidence =
     entry.nounType === "uncountable"
       ? `Kata ini biasanya tidak dihitung langsung satu per satu. Gunakan ukuran seperti "${entry.quantityExpression}" jika perlu menghitungnya.`
@@ -321,10 +359,10 @@ const buildClassificationQuestion = (entry: NounEntry, packageSlug: string): Que
     id: `${packageSlug}-${entry.id}`,
     packageSlug,
     nounId: entry.id,
-    prompt: `Tentukan jenis noun berikut: "${entry.displayNoun}".`,
+    prompt: `Tentukan jenis noun berikut${promptContext}: "${entry.displayNoun}".`,
     options: classificationOptions,
     answerKey,
-    explanation: `${entry.displayNoun} berarti "${entry.meaning}". Jawaban yang tepat adalah ${answerKey} (${entry.nounType === "uncountable" ? "Uncountable Noun" : "Countable Noun"}). ${evidence}`,
+    explanation: `${entry.displayNoun} berarti "${entry.meaning}". ${explanationContext}Jawaban yang tepat adalah ${answerKey} (${entry.nounType === "uncountable" ? "Uncountable Noun" : "Countable Noun"}). ${evidence}`,
   };
 };
 
@@ -362,6 +400,28 @@ export const contentStats = {
   totalPackages: testPackages.length,
 };
 
+const highRiskClassificationTerms = [
+  "cereal",
+  "class",
+  "coffee",
+  "dish",
+  "email",
+  "food",
+  "glass",
+  "hair",
+  "ice",
+  "light",
+  "medicine",
+  "paper",
+  "room",
+  "tea",
+  "work",
+] as const;
+
+const highRiskEntriesWithoutContext = nounEntries.filter(
+  (entry) => highRiskClassificationTerms.includes(entry.displayNoun as (typeof highRiskClassificationTerms)[number]) && !entry.classificationHint,
+);
+
 if (
   contentStats.uncountableCount !== 100 ||
   contentStats.countableCount !== 100 ||
@@ -369,4 +429,10 @@ if (
   contentStats.totalPackages !== 20
 ) {
   throw new Error("TBI noun content must contain 100 uncountable entries, 100 countable entries, and 20 test packages.");
+}
+
+if (highRiskEntriesWithoutContext.length > 0) {
+  throw new Error(
+    `High-risk classification entries need explicit context: ${highRiskEntriesWithoutContext.map((entry) => entry.displayNoun).join(", ")}`,
+  );
 }

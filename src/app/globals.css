@@ -5,7 +5,7 @@
   --surface: #fffdf7;
   --surface-strong: #f0eadf;
   --ink: #1c2521;
-  --muted: #68746e;
+  --muted: #4f5c56;
   --line: #ded6c8;
   --accent-teal: #16706a;
   --accent-teal-strong: #0f4d49;
@@ -219,13 +219,17 @@ input:focus-visible {
   padding: 0 14px;
 }
 
+.search-box:focus-within {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+}
+
 .search-box input {
   min-width: 0;
   width: 100%;
   border: 0;
   background: transparent;
   color: var(--ink);
-  outline: 0;
 }
 
 .segmented {
@@ -377,7 +381,7 @@ input:focus-visible {
 }
 
 .flip-front small {
-  color: rgba(255, 255, 255, 0.72);
+  color: rgba(255, 255, 255, 0.86);
   font-family: var(--font-mono), monospace;
 }
 
@@ -448,7 +452,7 @@ input:focus-visible {
 }
 
 .package-list button.active small {
-  color: rgba(255, 255, 255, 0.72);
+  color: rgba(255, 255, 255, 0.86);
 }
 
 .test-surface {
@@ -626,8 +630,28 @@ input:focus-visible {
   *::before,
   *::after {
     scroll-behavior: auto !important;
-    transition-duration: 0.01ms !important;
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
+    transition: none !important;
+    animation: none !important;
+  }
+
+  .flip-face,
+  .flipcard.is-flipped .flip-front,
+  .flipcard.is-flipped .flip-back {
+    transform: none !important;
+  }
+
+  .flip-back {
+    display: none;
+    opacity: 1;
+  }
+
+  .flipcard.is-flipped .flip-front {
+    display: none;
+    opacity: 1;
+  }
+
+  .flipcard.is-flipped .flip-back {
+    display: flex;
+    opacity: 1;
   }
 }
