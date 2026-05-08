@@ -1,0 +1,428 @@
+export type NounType = "uncountable" | "countable";
+export type Difficulty = "core" | "medium" | "advanced";
+
+export type NounEntry = {
+  id: string;
+  nounType: NounType;
+  displayNoun: string;
+  meaning: string;
+  topic: string;
+  difficulty: Difficulty;
+  usageNote: string;
+  commonMistake: string;
+  sourceType: "dictionary" | "grammar_reference" | "tutor_review";
+  sourceName: string;
+  urlOrCitation: string;
+  accessedAt: string;
+  claimAllowed: false;
+  sourceNote: string;
+  quantityExpression?: string;
+  countableAlternative?: string;
+  singularForm?: string;
+  pluralForm?: string;
+  pluralType?: "regular" | "irregular" | "zero" | "foreign" | "compound";
+};
+
+export type Question = {
+  id: string;
+  packageSlug: string;
+  nounId: string;
+  prompt: string;
+  options: Array<{ key: "A" | "B" | "C" | "D"; text: string }>;
+  answerKey: "A" | "B" | "C" | "D";
+  explanation: string;
+};
+
+export type TestPackage = {
+  slug: string;
+  title: string;
+  nounType: NounType;
+  order: number;
+  questions: Question[];
+};
+
+const source = {
+  sourceType: "tutor_review" as const,
+  sourceName: "Persiapantubel tutor review",
+  urlOrCitation: "internal-curation-2026-05",
+  accessedAt: "2026-05-09",
+  claimAllowed: false as const,
+  sourceNote:
+    "Validated for learning use; no claim that this item appeared in a real TOEFL, TOEIC, or IELTS exam.",
+};
+
+const difficultyByIndex = (index: number): Difficulty => {
+  if (index % 10 === 8 || index % 10 === 9) return "advanced";
+  if (index % 10 >= 4) return "medium";
+  return "core";
+};
+
+const slugify = (value: string) => value.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+
+const uncountableSeeds = [
+  ["abrasion", "pengikisan", "a sign of abrasion", "science"],
+  ["accretion", "pertambahan bertahap", "a layer of accretion", "geology"],
+  ["adherence", "kepatuhan atau pelekatan", "strict adherence", "policy"],
+  ["aeration", "pengudaraan", "proper aeration", "agriculture"],
+  ["albedo", "daya pantul permukaan", "an albedo value", "climate"],
+  ["anonymity", "anonimitas", "complete anonymity", "digital"],
+  ["apathy", "sikap acuh tak acuh", "public apathy", "society"],
+  ["arbitrage", "selisih beli-jual untuk untung", "currency arbitrage", "finance"],
+  ["asbestos", "asbes", "a sheet of asbestos", "materials"],
+  ["audacity", "keberanian nekat", "sheer audacity", "behavior"],
+  ["biodiversity", "keanekaragaman hayati", "rich biodiversity", "environment"],
+  ["birefringence", "pembiasan ganda", "optical birefringence", "physics"],
+  ["bitumen", "aspal alami atau bitumen", "a layer of bitumen", "construction"],
+  ["bravado", "gaya sok berani", "empty bravado", "behavior"],
+  ["brine", "air garam pekat", "a tank of brine", "food"],
+  ["camouflage", "penyamaran", "effective camouflage", "biology"],
+  ["candor", "keterusterangan", "rare candor", "communication"],
+  ["carcinogenesis", "pembentukan kanker", "chemical carcinogenesis", "medicine"],
+  ["cartilage", "tulang rawan", "a piece of cartilage", "anatomy"],
+  ["causality", "hubungan sebab-akibat", "clear causality", "research"],
+  ["chitin", "kitin", "a layer of chitin", "biology"],
+  ["chlorophyll", "klorofil", "green chlorophyll", "botany"],
+  ["coagulation", "penggumpalan", "blood coagulation", "medicine"],
+  ["cohesion", "keterpaduan atau daya rekat", "social cohesion", "society"],
+  ["combustion", "pembakaran", "a combustion reaction", "chemistry"],
+  ["compost", "kompos", "a bag of compost", "agriculture"],
+  ["condensation", "pengembunan", "surface condensation", "physics"],
+  ["conformity", "keseragaman atau kepatuhan sosial", "social conformity", "psychology"],
+  ["contagion", "penularan", "a risk of contagion", "health"],
+  ["corrosion", "korosi", "a patch of corrosion", "engineering"],
+  ["curvature", "kelengkungan", "a degree of curvature", "geometry"],
+  ["debris", "puing atau serpihan", "a pile of debris", "disaster"],
+  ["decay", "pelapukan atau pembusukan", "a sign of decay", "health"],
+  ["deforestation", "penggundulan hutan", "rapid deforestation", "environment"],
+  ["deference", "rasa hormat atau sikap tunduk", "a gesture of deference", "culture"],
+  ["desalination", "penyulingan air laut", "large-scale desalination", "water"],
+  ["detritus", "sisa organik atau serpihan", "a layer of detritus", "ecology"],
+  ["diction", "pilihan kata", "precise diction", "language"],
+  ["dormancy", "masa tidak aktif", "a period of dormancy", "biology"],
+  ["drought", "kekeringan", "a period of drought", "climate"],
+  ["effervescence", "gelembung atau semangat berkilau", "soft effervescence", "chemistry"],
+  ["elasticity", "elastisitas", "a measure of elasticity", "economics"],
+  ["empathy", "empati", "genuine empathy", "psychology"],
+  ["erosion", "erosi", "coastal erosion", "geography"],
+  ["ethanol", "etanol", "a bottle of ethanol", "chemistry"],
+  ["euphoria", "rasa gembira berlebihan", "a wave of euphoria", "emotion"],
+  ["eutrophication", "penyuburan air berlebih", "lake eutrophication", "environment"],
+  ["evaporation", "penguapan", "a rate of evaporation", "physics"],
+  ["exuberance", "kegembiraan meluap", "youthful exuberance", "behavior"],
+  ["fibrosis", "pengerasan jaringan", "a stage of fibrosis", "medicine"],
+  ["filtration", "penyaringan", "water filtration", "technology"],
+  ["fluency", "kelancaran berbahasa", "spoken fluency", "language"],
+  ["foliage", "dedaunan", "dense foliage", "botany"],
+  ["friction", "gesekan", "a coefficient of friction", "physics"],
+  ["fungicide", "zat antijamur", "a dose of fungicide", "agriculture"],
+  ["gallium", "galium", "a sample of gallium", "chemistry"],
+  ["granite", "granit", "a slab of granite", "materials"],
+  ["grit", "ketabahan atau pasir kasar", "personal grit", "character"],
+  ["habituation", "pembiasaan stimulus", "behavioral habituation", "psychology"],
+  ["haze", "kabut asap", "a layer of haze", "weather"],
+  ["hemostasis", "penghentian perdarahan", "normal hemostasis", "medicine"],
+  ["heredity", "pewarisan sifat", "genetic heredity", "biology"],
+  ["hindsight", "pemahaman setelah kejadian", "the benefit of hindsight", "thinking"],
+  ["humidity", "kelembapan udara", "a level of humidity", "weather"],
+  ["inertia", "kelembaman", "institutional inertia", "physics"],
+  ["infiltration", "peresapan atau penyusupan", "a rate of infiltration", "water"],
+  ["ingenuity", "kecerdikan", "technical ingenuity", "innovation"],
+  ["insulation", "isolasi atau pelindung panas", "a layer of insulation", "construction"],
+  ["introspection", "perenungan diri", "quiet introspection", "psychology"],
+  ["irrigation", "irigasi", "drip irrigation", "agriculture"],
+  ["kinship", "kekerabatan", "a sense of kinship", "anthropology"],
+  ["lactose", "laktosa", "a gram of lactose", "nutrition"],
+  ["latency", "jeda keterlambatan", "network latency", "technology"],
+  ["leverage", "daya ungkit atau pengaruh", "financial leverage", "business"],
+  ["limestone", "batu kapur", "a block of limestone", "geology"],
+  ["literacy", "kemelekan baca/tulis", "digital literacy", "education"],
+  ["magnetism", "kemagnetan", "strong magnetism", "physics"],
+  ["malnutrition", "kekurangan gizi", "child malnutrition", "health"],
+  ["manganese", "mangan", "a trace of manganese", "chemistry"],
+  ["masonry", "pekerjaan pasangan batu", "a section of masonry", "construction"],
+  ["melancholy", "kemurungan", "deep melancholy", "emotion"],
+  ["methane", "metana", "a molecule of methane", "climate"],
+  ["mileage", "jarak tempuh atau manfaat", "a mileage figure", "transport"],
+  ["mirth", "kegembiraan tawa", "a moment of mirth", "emotion"],
+  ["mold", "jamur atau lapuk", "a patch of mold", "health"],
+  ["morphology", "bentuk atau struktur", "a study of morphology", "science"],
+  ["mucus", "lendir", "a layer of mucus", "anatomy"],
+  ["negligence", "kelalaian", "professional negligence", "law"],
+  ["nostalgia", "kerinduan masa lalu", "a wave of nostalgia", "emotion"],
+  ["opacity", "ketidaktembusan atau ketidakjelasan", "a degree of opacity", "design"],
+  ["ozone", "ozon", "a concentration of ozone", "environment"],
+  ["perseverance", "ketekunan", "steady perseverance", "character"],
+  ["permafrost", "tanah beku permanen", "a layer of permafrost", "climate"],
+  ["porosity", "tingkat berpori", "a porosity value", "materials"],
+  ["precipitation", "curah hujan atau endapan", "annual precipitation", "weather"],
+  ["proficiency", "kemahiran", "a level of proficiency", "education"],
+  ["quartz", "kuarsa", "a crystal of quartz", "geology"],
+  ["resilience", "ketangguhan", "a measure of resilience", "planning"],
+  ["salinity", "kadar garam", "a salinity level", "ocean"],
+  ["sediment", "endapan", "a layer of sediment", "geology"],
+] as const;
+
+const countableSeeds = [
+  ["abutment", "abutments", "penopang ujung jembatan", "engineering"],
+  ["acorn", "acorns", "buah ek", "botany"],
+  ["adage", "adages", "pepatah", "language"],
+  ["airfoil", "airfoils", "bentuk sayap pengangkat", "aviation"],
+  ["alga", "algae", "satu ganggang", "biology"],
+  ["alcove", "alcoves", "ceruk ruangan", "architecture"],
+  ["amulet", "amulets", "jimat", "culture"],
+  ["anvil", "anvils", "landasan tempa", "tools"],
+  ["aperture", "apertures", "bukaan lensa atau celah", "photography"],
+  ["arbiter", "arbiters", "penengah keputusan", "law"],
+  ["archipelago", "archipelagos", "gugusan pulau", "geography"],
+  ["artifact", "artifacts", "benda peninggalan", "history"],
+  ["asymptote", "asymptotes", "garis batas kurva", "math"],
+  ["barometer", "barometers", "alat ukur tekanan udara", "weather"],
+  ["bastion", "bastions", "benteng pertahanan", "history"],
+  ["beaker", "beakers", "gelas kimia", "lab"],
+  ["beetle", "beetles", "kumbang", "biology"],
+  ["bivalve", "bivalves", "kerang dua cangkang", "marine"],
+  ["blight", "blights", "penyakit tanaman", "agriculture"],
+  ["bollard", "bollards", "tiang penghalang pendek", "urban"],
+  ["bracket", "brackets", "penyangga atau tanda kurung", "design"],
+  ["bract", "bracts", "daun pelindung bunga", "botany"],
+  ["burrow", "burrows", "liang hewan", "ecology"],
+  ["cairn", "cairns", "tumpukan batu penanda", "outdoor"],
+  ["caldera", "calderas", "kawah vulkanik besar", "geology"],
+  ["canopy", "canopies", "kanopi atau tajuk pohon", "nature"],
+  ["carapace", "carapaces", "cangkang punggung", "biology"],
+  ["catalyst", "catalysts", "pemicu atau katalis", "chemistry"],
+  ["cavern", "caverns", "gua besar", "geography"],
+  ["cistern", "cisterns", "tangki air", "infrastructure"],
+  ["clause", "clauses", "klausa", "grammar"],
+  ["cleft", "clefts", "celah atau rekahan", "anatomy"],
+  ["cloister", "cloisters", "lorong biara", "architecture"],
+  ["cochlea", "cochleae", "rumah siput telinga", "anatomy"],
+  ["colonnade", "colonnades", "deretan pilar", "architecture"],
+  ["conifer", "conifers", "pohon berbiji kerucut", "botany"],
+  ["crater", "craters", "kawah", "geology"],
+  ["crucible", "crucibles", "wadah peleburan", "lab"],
+  ["culvert", "culverts", "gorong-gorong", "infrastructure"],
+  ["cusp", "cusps", "ujung runcing atau titik batas", "math"],
+  ["dais", "daises", "panggung kecil kehormatan", "public space"],
+  ["dendrite", "dendrites", "cabang sel saraf", "biology"],
+  ["diaphragm", "diaphragms", "diafragma atau sekat", "anatomy"],
+  ["dike", "dikes", "tanggul", "water"],
+  ["diorama", "dioramas", "maket pemandangan", "museum"],
+  ["dormer", "dormers", "jendela atap", "architecture"],
+  ["eddy", "eddies", "pusaran kecil", "water"],
+  ["easel", "easels", "penyangga lukisan", "art"],
+  ["embankment", "embankments", "tanggul tanah", "infrastructure"],
+  ["emblem", "emblems", "lambang", "culture"],
+  ["enclave", "enclaves", "wilayah kantong", "geography"],
+  ["enzyme", "enzymes", "enzim", "biology"],
+  ["epitaph", "epitaphs", "tulisan nisan", "history"],
+  ["estuary", "estuaries", "muara pasang-surut", "geography"],
+  ["facade", "facades", "tampak depan bangunan", "architecture"],
+  ["fissure", "fissures", "retakan panjang", "geology"],
+  ["flange", "flanges", "bibir sambungan pipa", "engineering"],
+  ["floret", "florets", "bunga kecil", "botany"],
+  ["fresco", "frescoes", "lukisan dinding basah", "art"],
+  ["fuse", "fuses", "sekering", "electricity"],
+  ["gait", "gaits", "cara berjalan", "movement"],
+  ["gasket", "gaskets", "paking penyekat", "mechanics"],
+  ["gauge", "gauges", "alat ukur atau ukuran standar", "tools"],
+  ["groove", "grooves", "alur", "materials"],
+  ["grotto", "grottoes", "gua kecil buatan atau alami", "landscape"],
+  ["gully", "gullies", "parit erosi", "geography"],
+  ["harpoon", "harpoons", "tombak ikan", "maritime"],
+  ["hinge", "hinges", "engsel", "hardware"],
+  ["hive", "hives", "sarang lebah", "ecology"],
+  ["hollow", "hollows", "cekungan atau rongga", "landform"],
+  ["husk", "husks", "sekam atau kulit luar", "agriculture"],
+  ["inlet", "inlets", "teluk kecil atau saluran masuk", "geography"],
+  ["juncture", "junctures", "titik sambung atau momen penting", "planning"],
+  ["keel", "keels", "lunas kapal", "maritime"],
+  ["kiln", "kilns", "tungku pembakaran", "craft"],
+  ["lattice", "lattices", "kisi-kisi", "structure"],
+  ["ledger", "ledgers", "buku besar", "finance"],
+  ["ligament", "ligaments", "ligamen", "anatomy"],
+  ["lobe", "lobes", "cuping atau bagian bundar", "anatomy"],
+  ["mangrove", "mangroves", "bakau", "ecology"],
+  ["manifold", "manifolds", "pipa bercabang atau rangkaian", "engineering"],
+  ["marsh", "marshes", "rawa", "ecology"],
+  ["meander", "meanders", "kelokan sungai", "geography"],
+  ["mezzanine", "mezzanines", "lantai antara", "architecture"],
+  ["mollusk", "mollusks", "moluska", "biology"],
+  ["monolith", "monoliths", "batu tunggal besar", "history"],
+  ["moraine", "moraines", "endapan gletser", "geology"],
+  ["notch", "notches", "lekukan atau takik", "design"],
+  ["oasis", "oases", "oase", "geography"],
+  ["obelisk", "obelisks", "tugu runcing", "history"],
+  ["outcrop", "outcrops", "singkapan batu", "geology"],
+  ["parapet", "parapets", "dinding rendah tepi atap", "architecture"],
+  ["peatland", "peatlands", "lahan gambut", "environment"],
+  ["pendulum", "pendulums", "bandul", "physics"],
+  ["periscope", "periscopes", "periskop", "optics"],
+  ["quarry", "quarries", "tambang batu", "industry"],
+  ["reef", "reefs", "terumbu", "marine"],
+  ["rivet", "rivets", "paku keling", "engineering"],
+  ["silo", "silos", "menara penyimpanan", "agriculture"],
+  ["synapse", "synapses", "celah penghubung sel saraf", "biology"],
+] as const;
+
+const maybePluralize = (noun: string) => {
+  if (noun.endsWith("y")) return `${noun.slice(0, -1)}ies`;
+  if (noun.endsWith("s") || noun.endsWith("x") || noun.endsWith("ch")) return `${noun}es`;
+  return `${noun}s`;
+};
+
+const makeUniqueOptions = (values: string[]) => {
+  const seen = new Set<string>();
+  const options: string[] = [];
+  for (const value of values) {
+    const normalized = value.trim().toLowerCase();
+    if (!seen.has(normalized)) {
+      seen.add(normalized);
+      options.push(value);
+    }
+  }
+  while (options.length < 4) {
+    options.push(`wrong form ${options.length + 1}`);
+  }
+  return options.slice(0, 4);
+};
+
+const shuffleWithAnswer = (correct: string, wrong: string[], seedIndex: number) => {
+  const keys = ["A", "B", "C", "D"] as const;
+  const correctIndex = seedIndex % 4;
+  const optionTexts = makeUniqueOptions([correct, ...wrong]);
+  const ordered = keys.map((key, index) => ({
+    key,
+    text: index === correctIndex ? optionTexts[0] : optionTexts[index <= correctIndex ? index : index],
+  }));
+
+  let wrongCursor = 1;
+  return ordered.map((option, index) => {
+    if (index === correctIndex) return option;
+    const replacement = optionTexts[wrongCursor] ?? `wrong form ${wrongCursor}`;
+    wrongCursor += 1;
+    return { ...option, text: replacement };
+  });
+};
+
+export const nounEntries: NounEntry[] = [
+  ...uncountableSeeds.map(([displayNoun, meaning, quantityExpression, topic], index) => ({
+    id: `u-${slugify(displayNoun)}`,
+    nounType: "uncountable" as const,
+    displayNoun,
+    meaning,
+    topic,
+    difficulty: difficultyByIndex(index),
+    usageNote: `${displayNoun} dipakai sebagai uncountable noun dalam konteks ini, sehingga fokusnya pada konsep atau zat, bukan satuan benda.`,
+    commonMistake: `Hindari bentuk *${maybePluralize(displayNoun)}* dan jangan gunakan a/an langsung sebelum ${displayNoun}.`,
+    quantityExpression,
+    countableAlternative: quantityExpression,
+    ...source,
+  })),
+  ...countableSeeds.map(([singularForm, pluralForm, meaning, topic], index) => ({
+    id: `c-${slugify(singularForm)}`,
+    nounType: "countable" as const,
+    displayNoun: singularForm,
+    meaning,
+    topic,
+    difficulty: difficultyByIndex(index),
+    usageNote: `${singularForm} adalah countable noun; gunakan bentuk jamaknya saat jumlahnya lebih dari satu.`,
+    commonMistake: `Hindari memakai bentuk tunggal ${singularForm} setelah penanda jumlah seperti three, several, atau many.`,
+    singularForm,
+    pluralForm,
+    pluralType:
+      pluralForm === maybePluralize(singularForm) ? ("regular" as const) : ("irregular" as const),
+    ...source,
+  })),
+].sort((a, b) => a.displayNoun.localeCompare(b.displayNoun));
+
+const buildUncountableQuestion = (entry: NounEntry, packageSlug: string, index: number): Question => {
+  const plural = maybePluralize(entry.displayNoun);
+  const correct = `The report contains useful ${entry.displayNoun}.`;
+  const options = shuffleWithAnswer(
+    correct,
+    [
+      `The report contains many ${plural}.`,
+      `The report contains an ${entry.displayNoun}.`,
+      `The report contains several ${plural}.`,
+    ],
+    index,
+  );
+  const answerKey = options.find((option) => option.text === correct)?.key ?? "A";
+
+  return {
+    id: `q-${entry.id}`,
+    packageSlug,
+    nounId: entry.id,
+    prompt: `Choose the sentence that uses "${entry.displayNoun}" correctly.`,
+    options,
+    answerKey,
+    explanation: `${entry.displayNoun} adalah uncountable noun. Dalam konteks ini, kata tersebut tidak memakai a/an langsung dan tidak dibuat jamak dengan -s. Jika perlu menunjukkan jumlah, gunakan ungkapan seperti "${entry.quantityExpression}".`,
+  };
+};
+
+const buildCountableQuestion = (entry: NounEntry, packageSlug: string, index: number): Question => {
+  const singular = entry.singularForm ?? entry.displayNoun;
+  const plural = entry.pluralForm ?? maybePluralize(singular);
+  const correct = plural;
+  const options = shuffleWithAnswer(
+    correct,
+    [singular, maybePluralize(singular), `${singular}es`],
+    index,
+  );
+  const answerKey = options.find((option) => option.text === correct)?.key ?? "A";
+
+  return {
+    id: `q-${entry.id}`,
+    packageSlug,
+    nounId: entry.id,
+    prompt: `Complete the sentence: "The team documented three ___ during the review."`,
+    options,
+    answerKey,
+    explanation: `${entry.displayNoun} adalah countable noun. Bentuk tunggalnya "${singular}" dan bentuk jamaknya "${plural}". Setelah penanda jumlah seperti three, gunakan bentuk jamak yang benar.`,
+  };
+};
+
+const buildPackages = (type: NounType) => {
+  const entries = nounEntries.filter((entry) => entry.nounType === type);
+  return Array.from({ length: 10 }, (_, packageIndex) => {
+    const slug = `${type}-${String(packageIndex + 1).padStart(2, "0")}`;
+    const packageEntries = entries.slice(packageIndex * 10, packageIndex * 10 + 10);
+
+    return {
+      slug,
+      title:
+        type === "uncountable"
+          ? `Uncountable Nouns ${String(packageIndex + 1).padStart(2, "0")}`
+          : `Countable Nouns ${String(packageIndex + 1).padStart(2, "0")}`,
+      nounType: type,
+      order: packageIndex + 1,
+      questions: packageEntries.map((entry, questionIndex) =>
+        type === "uncountable"
+          ? buildUncountableQuestion(entry, slug, packageIndex * 10 + questionIndex)
+          : buildCountableQuestion(entry, slug, packageIndex * 10 + questionIndex),
+      ),
+    };
+  });
+};
+
+export const testPackages: TestPackage[] = [
+  ...buildPackages("uncountable"),
+  ...buildPackages("countable"),
+];
+
+export const contentStats = {
+  uncountable: nounEntries.filter((entry) => entry.nounType === "uncountable").length,
+  countable: nounEntries.filter((entry) => entry.nounType === "countable").length,
+  questions: testPackages.reduce((sum, item) => sum + item.questions.length, 0),
+  packages: testPackages.length,
+};
+
+if (
+  contentStats.uncountable !== 100 ||
+  contentStats.countable !== 100 ||
+  contentStats.questions !== 200 ||
+  contentStats.packages !== 20
+) {
+  throw new Error(`Invalid seed content counts: ${JSON.stringify(contentStats)}`);
+}
