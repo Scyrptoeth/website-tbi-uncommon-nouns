@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import {
   ArrowUp,
   BarChart3,
@@ -294,12 +295,12 @@ function Dashboard({
   return (
     <div className="space-y-8">
       <section className="dashboard-hero">
-        <div className="max-w-3xl">
+        <div className="dashboard-copy">
           <p className="eyebrow">Persiapantubel TBI</p>
           <h1>TBI - Noun Classifier</h1>
           <p>
-            Latihan focused untuk mengenali common uncountable nouns dan countable nouns dengan
-            materi, flipcard, tes klasifikasi, dan progres belajar yang tersimpan di browser.
+            Kenali Uncountable Noun dan Countable Noun yang relevan untuk latihan TOEFL, TOEIC, dan
+            IELTS melalui fasilitas Materi, Flipcard, dan Tes.
           </p>
         </div>
         <div className="hero-mark" aria-hidden="true">
@@ -955,9 +956,14 @@ export function LearningApp() {
       <div className="mx-auto flex min-h-dvh w-full max-w-[1440px] flex-col lg:flex-row">
         <aside className={`app-sidebar ${sidebarCollapsed ? "is-collapsed" : ""}`}>
           <div className="sidebar-head">
-            <div className="brand-block">
-              <p className="brand-kicker">Persiapantubel</p>
-              <strong>TBI Nouns</strong>
+            <div className="brand-block brand-logo-block">
+              <Image
+                src="/persiapantubel-logo.png"
+                alt="Persiapantubel"
+                width={900}
+                height={275}
+                priority
+              />
             </div>
             <button
               className="sidebar-toggle"

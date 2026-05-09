@@ -20,7 +20,7 @@ const monoFont = DM_Mono({
 export const metadata: Metadata = {
   title: "TBI - Noun Classifier | Persiapantubel",
   description:
-    "Materi, flipcard, dan tes klasifikasi common uncountable serta countable nouns untuk siswa Persiapantubel.",
+    "Materi, flipcard, dan tes klasifikasi uncountable serta countable nouns yang relevan untuk latihan TOEFL, TOEIC, dan IELTS.",
 };
 
 export default function RootLayout({

@@ -83,6 +83,18 @@ input:focus-visible {
   min-width: 0;
 }
 
+.brand-logo-block {
+  display: flex;
+  min-height: 44px;
+  align-items: center;
+}
+
+.brand-logo-block img {
+  width: min(144px, 100%);
+  height: auto;
+  object-fit: contain;
+}
+
 .brand-kicker,
 .eyebrow {
   display: block;
@@ -153,24 +165,28 @@ input:focus-visible {
 
 .dashboard-hero {
   display: grid;
-  gap: 28px;
+  gap: 32px;
+  align-items: center;
   border-left: 6px solid var(--accent-teal);
   background: var(--surface);
   padding: clamp(24px, 5vw, 56px);
 }
 
+.dashboard-copy {
+  min-width: 0;
+}
+
 .dashboard-hero h1 {
   margin-top: 14px;
-  max-width: 780px;
-  font-size: clamp(2.5rem, 8vw, 6.5rem);
+  font-size: 3rem;
   font-weight: 800;
   letter-spacing: 0;
-  line-height: 0.92;
+  line-height: 0.96;
 }
 
 .dashboard-hero p {
   margin-top: 18px;
-  max-width: 68ch;
+  max-width: 88ch;
   color: var(--muted);
   font-size: 1.05rem;
   line-height: 1.7;
@@ -907,7 +923,11 @@ input:focus-visible {
   }
 
   .dashboard-hero {
-    grid-template-columns: minmax(0, 1fr) 220px;
+    grid-template-columns: minmax(0, 1fr) 200px;
+  }
+
+  .dashboard-hero h1 {
+    font-size: 3rem;
   }
 
   .section-header {
@@ -952,8 +972,12 @@ input:focus-visible {
 }
 @media (min-width: 1024px) {
   .app-sidebar {
+    position: sticky;
+    top: 0;
     width: 224px;
     min-height: 100dvh;
+    max-height: 100dvh;
+    overflow: auto;
     border-right: 1px solid var(--line);
     border-bottom: 0;
     padding: 24px 12px;
@@ -1017,6 +1041,11 @@ input:focus-visible {
 }
 
 @media (min-width: 1280px) {
+  .dashboard-hero h1 {
+    font-size: 3.75rem;
+    white-space: nowrap;
+  }
+
   .answer-number-group div {
     flex-wrap: nowrap;
   }

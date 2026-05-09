@@ -6,10 +6,29 @@ test("student learning surfaces render and accept interaction", async ({ page })
   await page.reload();
 
   await expect(page.getByRole("heading", { name: "TBI - Noun Classifier" })).toBeVisible();
+  await expect(
+    page.getByText(
+      "Kenali Uncountable Noun dan Countable Noun yang relevan untuk latihan TOEFL, TOEIC, dan IELTS melalui fasilitas Materi, Flipcard, dan Tes.",
+    ),
+  ).toBeVisible();
+  await expect(page.getByAltText("Persiapantubel")).toBeVisible();
+  await expect(page.getByText("TBI Nouns", { exact: true })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Tantangan", exact: true })).toHaveCount(0);
   await expect(
     page.locator("section").filter({ hasText: "Flipcard Dibuka" }).getByText("0/600", { exact: true }),
   ).toBeVisible();
+  if ((page.viewportSize()?.width ?? 0) >= 1024) {
+    const sidebarTopBefore = await page.locator(".app-sidebar").evaluate((element) =>
+      Math.round(element.getBoundingClientRect().top),
+    );
+    await page.evaluate(() => window.scrollTo(0, 900));
+    const sidebarTopAfter = await page.locator(".app-sidebar").evaluate((element) =>
+      Math.round(element.getBoundingClientRect().top),
+    );
+    expect(sidebarTopBefore).toBe(0);
+    expect(sidebarTopAfter).toBe(0);
+    await page.evaluate(() => window.scrollTo(0, 0));
+  }
 
   await page.getByRole("button", { name: /Pencarian/ }).click();
   await expect(page.getByRole("heading", { name: "Daftar Noun" })).toBeVisible();
