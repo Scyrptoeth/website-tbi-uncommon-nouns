@@ -7,7 +7,7 @@ test("student learning surfaces render and accept interaction", async ({ page })
 
   await expect(page.getByRole("heading", { name: "TBI - Noun Classifier" })).toBeVisible();
   await expect(
-    page.locator("section").filter({ hasText: "Flipcard Dibuka" }).getByText("0/200", { exact: true }),
+    page.locator("section").filter({ hasText: "Flipcard Dibuka" }).getByText("0/400", { exact: true }),
   ).toBeVisible();
 
   await page.getByRole("button", { name: /Materi/ }).click();

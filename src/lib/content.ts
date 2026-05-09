@@ -55,6 +55,11 @@ const source = {
     "Validated for learning use; no claim that this item appeared in a real TOEFL, TOEIC, or IELTS exam.",
 };
 
+const expectedNounsPerType = 200;
+const entriesPerTypePerPackage = 5;
+const questionsPerPackage = entriesPerTypePerPackage * 2;
+const expectedPackageCount = expectedNounsPerType / entriesPerTypePerPackage;
+
 const difficultyByIndex = (index: number): Difficulty => {
   if (index % 10 === 8 || index % 10 === 9) return "advanced";
   if (index % 10 >= 4) return "medium";
@@ -75,6 +80,7 @@ const uncountableSeeds = [
   ["cheese", "keju", "a piece of cheese", "food and drink"],
   ["honey", "madu", "a spoonful of honey", "food and drink"],
   ["meat", "daging", "a piece of meat", "food and drink"],
+  ["fruit", "buah sebagai makanan umum", "a piece of fruit", "food and drink"],
   ["coffee", "kopi", "a cup of coffee", "food and drink"],
   ["tea", "teh", "a cup of tea", "food and drink"],
   ["juice", "jus", "a glass of juice", "food and drink"],
@@ -164,19 +170,139 @@ const uncountableSeeds = [
   ["gasoline", "bensin", "a liter of gasoline", "transport"],
   ["oxygen", "oksigen", "a supply of oxygen", "health"],
   ["smoke", "asap", "a cloud of smoke", "nature"],
+  ["beef", "daging sapi", "a slice of beef", "food and drink"],
+  ["bacon", "daging asap", "a slice of bacon", "food and drink"],
+  ["pork", "daging babi", "a piece of pork", "food and drink"],
+  ["seafood", "makanan laut", "a serving of seafood", "food and drink"],
+  ["yogurt", "yogurt", "a cup of yogurt", "food and drink"],
+  ["cream", "krim", "a spoonful of cream", "food and drink"],
+  ["jam", "selai", "a jar of jam", "food and drink"],
+  ["ketchup", "saus tomat", "a bottle of ketchup", "food and drink"],
+  ["mustard", "mustard", "a spoonful of mustard", "food and drink"],
+  ["mayonnaise", "mayones", "a jar of mayonnaise", "food and drink"],
+  ["vinegar", "cuka", "a bottle of vinegar", "food and drink"],
+  ["pepper", "merica", "a pinch of pepper", "food and drink"],
+  ["garlic", "bawang putih", "a clove of garlic", "food and drink"],
+  ["lettuce", "selada", "a head of lettuce", "food and drink"],
+  ["spinach", "bayam", "a bunch of spinach", "food and drink"],
+  ["broccoli", "brokoli", "a head of broccoli", "food and drink"],
+  ["chocolate", "cokelat", "a bar of chocolate", "food and drink"],
+  ["lemonade", "limun", "a glass of lemonade", "food and drink"],
+  ["rubber", "karet", "a piece of rubber", "materials"],
+  ["cement", "semen", "a bag of cement", "materials"],
+  ["concrete", "beton", "a slab of concrete", "materials"],
+  ["paint", "cat", "a can of paint", "materials"],
+  ["glue", "lem", "a tube of glue", "materials"],
+  ["ink", "tinta", "a bottle of ink", "materials"],
+  ["clay", "tanah liat", "a lump of clay", "materials"],
+  ["coal", "batu bara", "a lump of coal", "materials"],
+  ["charcoal", "arang", "a bag of charcoal", "materials"],
+  ["copper", "tembaga", "a coil of copper", "materials"],
+  ["aluminum", "aluminium", "a sheet of aluminum", "materials"],
+  ["bronze", "perunggu", "a piece of bronze", "materials"],
+  ["brass", "kuningan", "a piece of brass", "materials"],
+  ["marble", "marmer", "a slab of marble", "materials"],
+  ["fabric", "kain", "a piece of fabric", "materials"],
+  ["silk", "sutra", "a length of silk", "materials"],
+  ["linen", "linen", "a piece of linen", "materials"],
+  ["denim", "denim", "a yard of denim", "materials"],
+  ["polyester", "poliester", "a piece of polyester", "materials"],
+  ["nylon", "nilon", "a length of nylon", "materials"],
+  ["detergent", "deterjen", "a bottle of detergent", "home"],
+  ["bleach", "pemutih", "a bottle of bleach", "home"],
+  ["laundry", "cucian", "a load of laundry", "home"],
+  ["makeup", "riasan", "a bit of makeup", "daily life"],
+  ["perfume", "parfum", "a bottle of perfume", "daily life"],
+  ["wifi", "Wi-Fi", "a Wi-Fi connection", "technology"],
+  ["bandwidth", "bandwidth", "a lot of bandwidth", "technology"],
+  ["storage", "penyimpanan", "a lot of storage", "technology"],
+  ["privacy", "privasi", "a level of privacy", "technology"],
+  ["security", "keamanan", "a layer of security", "technology"],
+  ["feedback", "umpan balik", "a piece of feedback", "communication"],
+  ["support", "dukungan", "some support", "communication"],
+  ["guidance", "bimbingan", "some guidance", "communication"],
+  ["attention", "perhatian", "a lot of attention", "communication"],
+  ["care", "kepedulian atau perawatan", "a lot of care", "daily life"],
+  ["respect", "rasa hormat", "a sign of respect", "character"],
+  ["trust", "kepercayaan", "a level of trust", "character"],
+  ["leadership", "kepemimpinan", "strong leadership", "work"],
+  ["management", "manajemen", "good management", "work"],
+  ["employment", "pekerjaan atau lapangan kerja", "full-time employment", "work"],
+  ["unemployment", "pengangguran", "a period of unemployment", "work"],
+  ["training", "pelatihan", "a training session", "school"],
+  ["practice", "latihan", "a lot of practice", "school"],
+  ["stress", "stres", "a lot of stress", "health"],
+  ["pressure", "tekanan", "a lot of pressure", "daily life"],
+  ["pain", "rasa sakit", "a bit of pain", "health"],
+  ["damage", "kerusakan", "a lot of damage", "daily life"],
+  ["harm", "bahaya atau kerugian", "serious harm", "daily life"],
+  ["trouble", "masalah atau kesulitan", "a lot of trouble", "daily life"],
+  ["importance", "kepentingan", "great importance", "communication"],
+  ["violence", "kekerasan", "an act of violence", "society"],
+  ["poverty", "kemiskinan", "a level of poverty", "society"],
+  ["wealth", "kekayaan", "a great deal of wealth", "society"],
+  ["transportation", "transportasi", "public transportation", "transport"],
+  ["shipping", "pengiriman", "free shipping", "transport"],
+  ["advertising", "periklanan", "online advertising", "work"],
+  ["marketing", "pemasaran", "digital marketing", "work"],
+  ["shopping", "berbelanja", "some shopping", "daily life"],
+  ["fitness", "kebugaran", "physical fitness", "health"],
+  ["nutrition", "gizi", "good nutrition", "health"],
+  ["fog", "kabut", "a patch of fog", "nature"],
+  ["mist", "kabut tipis", "a layer of mist", "nature"],
+  ["dew", "embun", "a drop of dew", "nature"],
+  ["frost", "embun beku", "a layer of frost", "nature"],
+  ["thunder", "guntur", "a clap of thunder", "nature"],
+  ["lightning", "kilat", "a flash of lightning", "nature"],
+  ["wind", "angin", "a gust of wind", "nature"],
+  ["sunlight", "cahaya matahari", "a beam of sunlight", "nature"],
+  ["moonlight", "cahaya bulan", "a patch of moonlight", "nature"],
+  ["shade", "keteduhan", "a patch of shade", "nature"],
+  ["humidity", "kelembapan", "a level of humidity", "nature"],
+  ["nitrogen", "nitrogen", "a supply of nitrogen", "nature"],
+  ["carbon dioxide", "karbon dioksida", "a level of carbon dioxide", "nature"],
+  ["steam", "uap", "a cloud of steam", "nature"],
+  ["chalk", "kapur tulis", "a piece of chalk", "school"],
+  ["parking", "parkir", "a parking space", "transport"],
+  ["housing", "perumahan", "affordable housing", "society"],
+  ["accommodation", "akomodasi", "student accommodation", "travel"],
+  ["equality", "kesetaraan", "a degree of equality", "society"],
+  ["justice", "keadilan", "a sense of justice", "society"],
+  ["truth", "kebenaran", "a grain of truth", "communication"],
 ] as const;
 
 const uncountableClassificationHints: Record<string, string> = {
+  chalk: "kapur sebagai bahan tulis, bukan satu batang kapur tertentu",
   cereal: "sereal sebagai makanan secara umum, bukan satu merek atau jenis sereal tertentu",
   coffee: "kopi sebagai minuman secara umum, bukan satu cangkir pesanan",
+  dust: "debu sebagai partikel halus secara umum, bukan jenis debu ilmiah tertentu",
   food: "makanan secara umum, bukan satu jenis makanan tertentu",
+  fruit: "buah sebagai kategori makanan umum, bukan satu jenis buah tertentu",
   glass: "kaca sebagai bahan, bukan satu gelas minum",
   hair: "rambut sebagai massa di kepala atau tubuh, bukan satu helai rambut",
+  homework: "pekerjaan rumah sekolah secara umum, bukan satu tugas yang dihitung sebagai task",
+  housework: "pekerjaan rumah tangga secara umum, bukan satu pekerjaan terpisah",
   ice: "es sebagai zat/bahan, bukan satu balok atau kubus es",
+  jam: "selai sebagai bahan oles, bukan kemacetan lalu lintas",
   light: "cahaya secara umum, bukan satu lampu",
+  makeup: "riasan sebagai produk/kosmetik secara umum, bukan satu ujian susulan",
   medicine: "obat sebagai zat/perawatan secara umum, bukan satu pil tertentu",
+  metal: "logam sebagai bahan, bukan satu benda logam tertentu",
+  money: "uang sebagai nilai/alat tukar secara umum, bukan satu koin atau lembar uang",
+  parking: "parkir sebagai layanan/aktivitas, bukan satu tempat parkir tertentu",
   paper: "kertas sebagai bahan, bukan makalah atau artikel",
+  pepper: "merica sebagai bumbu, bukan satu buah cabai/paprika",
+  practice: "latihan sebagai aktivitas umum, bukan satu praktik bisnis/profesional",
+  plastic: "plastik sebagai bahan, bukan satu benda plastik tertentu",
+  progress: "kemajuan secara umum, bukan satu tahap perkembangan yang dihitung terpisah",
+  research: "penelitian sebagai kegiatan/bidang umum, bukan satu proyek penelitian",
+  sand: "pasir sebagai massa butiran, bukan satu butir pasir",
+  shade: "keteduhan sebagai area/cahaya terhalang, bukan satu warna tertentu",
+  smoke: "asap sebagai gas/kabut dari pembakaran, bukan tindakan merokok",
+  sugar: "gula sebagai bahan, bukan satu butir atau satu bungkus gula",
+  truth: "kebenaran secara umum, bukan satu fakta/pernyataan tertentu",
   tea: "teh sebagai minuman secara umum, bukan satu cangkir pesanan",
+  traffic: "lalu lintas sebagai kondisi pergerakan kendaraan, bukan kendaraan satu per satu",
   work: "pekerjaan atau aktivitas kerja secara umum, bukan karya seni atau satu tugas tertentu",
 };
 
@@ -288,6 +414,106 @@ const countableSeeds = [
   ["song", "songs", "lagu", "daily life"],
   ["movie", "movies", "film", "daily life"],
   ["game", "games", "permainan", "daily life"],
+  ["parent", "parents", "orang tua", "people"],
+  ["mother", "mothers", "ibu", "people"],
+  ["father", "fathers", "ayah", "people"],
+  ["brother", "brothers", "saudara laki-laki", "people"],
+  ["sister", "sisters", "saudara perempuan", "people"],
+  ["cousin", "cousins", "sepupu", "people"],
+  ["neighbor", "neighbors", "tetangga", "people"],
+  ["doctor", "doctors", "dokter", "people"],
+  ["nurse", "nurses", "perawat", "people"],
+  ["driver", "drivers", "pengemudi", "people"],
+  ["customer", "customers", "pelanggan", "people"],
+  ["worker", "workers", "pekerja", "people"],
+  ["manager", "managers", "manajer", "people"],
+  ["player", "players", "pemain", "people"],
+  ["singer", "singers", "penyanyi", "people"],
+  ["actor", "actors", "aktor", "people"],
+  ["visitor", "visitors", "pengunjung", "people"],
+  ["passenger", "passengers", "penumpang", "people"],
+  ["guest", "guests", "tamu", "people"],
+  ["member", "members", "anggota", "people"],
+  ["sofa", "sofas", "sofa", "home"],
+  ["shelf", "shelves", "rak", "home"],
+  ["cabinet", "cabinets", "lemari kabinet", "home"],
+  ["drawer", "drawers", "laci", "home"],
+  ["blanket", "blankets", "selimut", "home"],
+  ["pillow", "pillows", "bantal", "home"],
+  ["carpet", "carpets", "karpet", "home"],
+  ["curtain", "curtains", "tirai", "home"],
+  ["sink", "sinks", "wastafel", "home"],
+  ["stove", "stoves", "kompor", "home"],
+  ["refrigerator", "refrigerators", "kulkas", "home"],
+  ["oven", "ovens", "oven", "home"],
+  ["pan", "pans", "wajan", "home"],
+  ["pot", "pots", "panci", "home"],
+  ["kettle", "kettles", "ketel", "home"],
+  ["tray", "trays", "nampan", "home"],
+  ["napkin", "napkins", "serbet", "home"],
+  ["bucket", "buckets", "ember", "home"],
+  ["broom", "brooms", "sapu", "home"],
+  ["cupboard", "cupboards", "lemari", "home"],
+  ["tablet", "tablets", "tablet", "technology"],
+  ["charger", "chargers", "pengisi daya", "technology"],
+  ["cable", "cables", "kabel", "technology"],
+  ["screen", "screens", "layar", "technology"],
+  ["keyboard", "keyboards", "papan ketik", "technology"],
+  ["mouse", "mice", "tetikus", "technology"],
+  ["printer", "printers", "printer", "technology"],
+  ["speaker", "speakers", "pengeras suara", "technology"],
+  ["microphone", "microphones", "mikrofon", "technology"],
+  ["battery", "batteries", "baterai", "technology"],
+  ["file", "files", "berkas", "technology"],
+  ["folder", "folders", "folder", "technology"],
+  ["website", "websites", "situs web", "technology"],
+  ["app", "apps", "aplikasi", "technology"],
+  ["desk", "desks", "meja kerja", "school"],
+  ["page", "pages", "halaman", "school"],
+  ["ruler", "rulers", "penggaris", "school"],
+  ["eraser", "erasers", "penghapus", "school"],
+  ["marker", "markers", "spidol", "school"],
+  ["exam", "exams", "ujian", "school"],
+  ["grade", "grades", "nilai", "school"],
+  ["note", "notes", "catatan", "school"],
+  ["report", "reports", "laporan", "school"],
+  ["project", "projects", "proyek", "school"],
+  ["schedule", "schedules", "jadwal", "school"],
+  ["calendar", "calendars", "kalender", "daily life"],
+  ["taxi", "taxis", "taksi", "transport"],
+  ["truck", "trucks", "truk", "transport"],
+  ["motorcycle", "motorcycles", "sepeda motor", "transport"],
+  ["scooter", "scooters", "skuter", "transport"],
+  ["airplane", "airplanes", "pesawat", "transport"],
+  ["boat", "boats", "perahu", "transport"],
+  ["ship", "ships", "kapal", "transport"],
+  ["station", "stations", "stasiun", "place"],
+  ["airport", "airports", "bandara", "place"],
+  ["bridge", "bridges", "jembatan", "place"],
+  ["building", "buildings", "gedung", "place"],
+  ["hotel", "hotels", "hotel", "place"],
+  ["library", "libraries", "perpustakaan", "place"],
+  ["museum", "museums", "museum", "place"],
+  ["stadium", "stadiums", "stadion", "place"],
+  ["seed", "seeds", "benih", "nature"],
+  ["garden", "gardens", "kebun", "nature"],
+  ["cloud", "clouds", "awan", "nature"],
+  ["star", "stars", "bintang", "nature"],
+  ["planet", "planets", "planet", "nature"],
+  ["wave", "waves", "ombak", "nature"],
+  ["hill", "hills", "bukit", "nature"],
+  ["forest", "forests", "hutan", "nature"],
+  ["desert", "deserts", "gurun", "nature"],
+  ["bee", "bees", "lebah", "animal"],
+  ["butterfly", "butterflies", "kupu-kupu", "animal"],
+  ["cookie", "cookies", "kue kering", "food and drink"],
+  ["potato", "potatoes", "kentang", "food and drink"],
+  ["tomato", "tomatoes", "tomat", "food and drink"],
+  ["carrot", "carrots", "wortel", "food and drink"],
+  ["onion", "onions", "bawang bombai", "food and drink"],
+  ["grape", "grapes", "anggur", "food and drink"],
+  ["strawberry", "strawberries", "stroberi", "food and drink"],
+  ["lemon", "lemons", "lemon", "food and drink"],
 ] as const;
 
 const maybePluralize = (noun: string) => {
@@ -373,7 +599,7 @@ const interleaveEntries = (left: NounEntry[], right: NounEntry[]) =>
   left.flatMap((entry, index) => [entry, right[index]]).filter(Boolean);
 
 const buildPackages = (): TestPackage[] =>
-  Array.from({ length: 20 }, (_, packageIndex) => {
+  Array.from({ length: expectedPackageCount }, (_, packageIndex) => {
     const slug = `classification-${String(packageIndex + 1).padStart(2, "0")}`;
     const start = packageIndex * 5;
     const entries = interleaveEntries(
@@ -400,21 +626,58 @@ export const contentStats = {
   totalPackages: testPackages.length,
 };
 
-const highRiskClassificationTerms = [
+const findDuplicates = (values: string[]) => {
+  const seen = new Set<string>();
+  const duplicates = new Set<string>();
+
+  for (const value of values) {
+    if (seen.has(value)) duplicates.add(value);
+    seen.add(value);
+  }
+
+  return [...duplicates];
+};
+
+const duplicateIds = findDuplicates(nounEntries.map((entry) => entry.id));
+const duplicateDisplayNouns = findDuplicates(nounEntries.map((entry) => slugify(entry.displayNoun)));
+const incompletePackages = testPackages.filter((item) => item.questions.length !== questionsPerPackage);
+
+export const highRiskClassificationTerms = [
   "cereal",
+  "chalk",
   "class",
   "coffee",
   "dish",
+  "dust",
   "email",
   "food",
+  "fruit",
   "glass",
   "hair",
+  "homework",
+  "housework",
   "ice",
+  "jam",
   "light",
+  "makeup",
   "medicine",
+  "metal",
+  "money",
+  "parking",
   "paper",
+  "pepper",
+  "plastic",
+  "practice",
+  "progress",
+  "research",
   "room",
+  "sand",
+  "shade",
+  "smoke",
+  "sugar",
   "tea",
+  "traffic",
+  "truth",
   "work",
 ] as const;
 
@@ -423,12 +686,21 @@ const highRiskEntriesWithoutContext = nounEntries.filter(
 );
 
 if (
-  contentStats.uncountableCount !== 100 ||
-  contentStats.countableCount !== 100 ||
-  contentStats.totalQuestions !== 200 ||
-  contentStats.totalPackages !== 20
+  contentStats.uncountableCount !== expectedNounsPerType ||
+  contentStats.countableCount !== expectedNounsPerType ||
+  contentStats.totalQuestions !== expectedNounsPerType * 2 ||
+  contentStats.totalPackages !== expectedPackageCount ||
+  incompletePackages.length > 0
 ) {
-  throw new Error("TBI noun content must contain 100 uncountable entries, 100 countable entries, and 20 test packages.");
+  throw new Error(
+    `TBI noun content must contain ${expectedNounsPerType} uncountable entries, ${expectedNounsPerType} countable entries, ${expectedNounsPerType * 2} questions, and ${expectedPackageCount} complete test packages.`,
+  );
+}
+
+if (duplicateIds.length > 0 || duplicateDisplayNouns.length > 0) {
+  throw new Error(
+    `TBI noun content must not contain duplicate ids or display nouns. Duplicate ids: ${duplicateIds.join(", ") || "-"}; duplicate nouns: ${duplicateDisplayNouns.join(", ") || "-"}`,
+  );
 }
 
 if (highRiskEntriesWithoutContext.length > 0) {

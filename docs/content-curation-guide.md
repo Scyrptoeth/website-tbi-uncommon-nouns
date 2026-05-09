@@ -6,7 +6,7 @@ Status: Updated guide for common noun classification MVP
 
 ## 1. Purpose
 
-This guide defines how to curate the active 100 common uncountable nouns, 100 common countable nouns, and 200 A/B classification questions without relying on leaked, copyrighted, or unverifiable exam content.
+This guide defines how to curate the active 200 common uncountable nouns, 200 common countable nouns, and 400 A/B classification questions without relying on leaked, copyrighted, or unverifiable exam content.
 
 ## 2. Source Hierarchy
 
@@ -192,10 +192,10 @@ After publish:
 
 The next content task should create:
 
-- `noun-entries.csv` with 200 reviewed noun rows.
-- `noun-meanings.csv` with at least 200 primary meaning rows, or a documented `content-bundle.csv` that contains the same normalized fields.
-- `test-packages.csv` with 20 packages.
-- `questions.csv` with 200 questions.
+- `noun-entries.csv` with 400 reviewed noun rows.
+- `noun-meanings.csv` with at least 400 primary meaning rows, or a documented `content-bundle.csv` that contains the same normalized fields.
+- `test-packages.csv` with 40 packages.
+- `questions.csv` with 400 questions.
 - `question-options.csv` with 800 options.
 
 Each noun/meaning row should include structured source fields, but not copied official exam text.

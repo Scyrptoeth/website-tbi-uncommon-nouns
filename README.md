@@ -4,10 +4,10 @@ Website pembelajaran Persiapantubel untuk mengenali common uncountable nouns dan
 
 ## Scope
 
-- 100 common uncountable nouns.
-- 100 common countable nouns.
-- 20 paket tes.
-- 200 soal klasifikasi pilihan A/B.
+- 200 common uncountable nouns.
+- 200 common countable nouns.
+- 40 paket tes.
+- 400 soal klasifikasi pilihan A/B.
 - Materi, Flipcard, Tes, progress chart, dan ringkasan SuperAdmin.
 - Progress demo tersimpan di browser localStorage.
 - Content QA guard untuk noun ambigu dan mixed package.

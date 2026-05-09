@@ -7,10 +7,10 @@ Status: Implemented in active source
 
 This QA pass reviewed the active common noun bank in `src/lib/content.ts` for binary classification fairness:
 
-- 100 common uncountable nouns.
-- 100 common countable nouns.
-- 200 A/B classification questions.
-- 20 mixed packages.
+- 200 common uncountable nouns.
+- 200 common countable nouns.
+- 400 A/B classification questions.
+- 40 mixed packages.
 
 The old specialized/uncommon noun list remains archived in `docs/archive/specialized-content-2026-05-09.ts.txt` and is not part of this active QA scope.
 
@@ -18,20 +18,42 @@ The old specialized/uncommon noun list remains archived in `docs/archive/special
 
 - Added explicit classification context for high-risk dual-use nouns:
   - `cereal`
+  - `chalk`
   - `class`
   - `coffee`
   - `dish`
+  - `dust`
   - `email`
   - `food`
+  - `fruit`
   - `glass`
   - `hair`
+  - `homework`
+  - `housework`
   - `ice`
+  - `jam`
   - `light`
+  - `makeup`
   - `medicine`
+  - `metal`
+  - `money`
+  - `parking`
   - `paper`
+  - `pepper`
+  - `plastic`
+  - `practice`
+  - `progress`
+  - `research`
   - `room`
+  - `sand`
+  - `shade`
+  - `smoke`
+  - `sugar`
   - `tea`
+  - `traffic`
+  - `truth`
   - `work`
+- Expanded the active bank with 100 additional common uncountable nouns and 100 additional common countable nouns without duplicate normalized display nouns.
 - Updated question prompts so context appears directly in ambiguous A/B classification questions.
 - Updated explanations so students see why the contextual answer is valid.
 - Replaced uncountable common-mistake text that previously generated artificial plural examples through a heuristic.
@@ -41,9 +63,10 @@ The old specialized/uncommon noun list remains archived in `docs/archive/special
 ## Guardrails Added
 
 - Active content throws at build time if:
-  - count is not exactly 100 uncountable + 100 countable;
-  - total questions are not exactly 200;
-  - total packages are not exactly 20;
+  - count is not exactly 200 uncountable + 200 countable;
+  - total questions are not exactly 400;
+  - total packages are not exactly 40;
+  - duplicate ids or normalized display nouns exist;
   - high-risk dual-use nouns are missing an explicit classification context.
 - `tests/content.spec.ts` verifies:
   - exact content counts;

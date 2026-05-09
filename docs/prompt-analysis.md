@@ -1,7 +1,7 @@
 # Prompt Analysis - Website TBI Uncommon Uncountable and Countable Noun
 
 Date: 2026-05-09
-Status: Completed analysis and clarification
+Status: Historical initial analysis; current active implementation is `TBI - Noun Classifier` with 200 common uncountable nouns, 200 common countable nouns, 400 A/B questions, and 40 mixed packages.
 Project: Website-TBI-Uncommon-Uncountable-and-Countable-Noun
 Owner: Bimbel Persiapantubel
 
@@ -103,4 +103,3 @@ The prompt says "pastikan semua kata kerja disusun secara alfabetik". For this n
 - Two project skills exist under the local skills directory.
 - Skill references include session memory, lessons learned, and recommended next actions.
 - Skills validate successfully with the skill-creator validator.
-

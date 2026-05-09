@@ -1,7 +1,7 @@
 # Refined Prompt - Website TBI Uncommon Uncountable and Countable Noun
 
 Date: 2026-05-09
-Status: Executed for grand design and skill setup
+Status: Historical initial refined prompt; current active implementation is `TBI - Noun Classifier` with 200 common uncountable nouns, 200 common countable nouns, 400 A/B questions, and 40 mixed packages.
 
 ```text
 Use /start-dev, ui-ux-pro-max, taste-ui, and skill-creator as applicable.
@@ -96,4 +96,3 @@ Output:
    /update-website-tbi-uncommon-uncountable-and-countable-noun
 7. Validate the created skill files.
 ```
-

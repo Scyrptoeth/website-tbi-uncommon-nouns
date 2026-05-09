@@ -67,11 +67,11 @@ Recommended identity direction:
 
 ### 4.1 Initial Content Target
 
-- 100 common uncountable nouns.
-- 100 common countable nouns.
-- 200 A/B classification questions.
-- 20 total test packages:
-  - 20 mixed classification packages.
+- 200 common uncountable nouns.
+- 200 common countable nouns.
+- 400 A/B classification questions.
+- 40 total test packages:
+  - 40 mixed classification packages.
   - 10 questions per package.
 
 ### 4.2 Noun Entry Fields
@@ -475,8 +475,8 @@ Export behavior:
 ### Phase 0 - Content And Repo Preparation
 
 - Approve public title and domain/repository name.
-- Curate initial 200 noun entries.
-- Curate 200 original questions.
+- Curate initial 400 noun entries.
+- Curate 400 original questions.
 - Define import templates.
 - Decide whether to fork/adapt the existing TBI verbs architecture.
 
@@ -564,6 +564,6 @@ Start with Phase 0:
 
 1. Approve public title: recommended `TBI - Uncommon Nouns`.
 2. Decide repository name and local project root.
-3. Curate a verified 200-entry noun bank using the content curation guide.
-4. Draft 20 test packages with original questions and Indonesian explanations.
+3. Curate a verified 400-entry noun bank using the content curation guide.
+4. Draft 40 test packages with original questions and Indonesian explanations.
 5. Then scaffold the Next.js app using the project start skill.

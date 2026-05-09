@@ -1,36 +1,19 @@
 import { expect, test } from "@playwright/test";
-import { contentStats, nounEntries, testPackages } from "../src/lib/content";
-
-const highRiskTerms = [
-  "cereal",
-  "class",
-  "coffee",
-  "dish",
-  "email",
-  "food",
-  "glass",
-  "hair",
-  "ice",
-  "light",
-  "medicine",
-  "paper",
-  "room",
-  "tea",
-  "work",
-];
+import { contentStats, highRiskClassificationTerms, nounEntries, testPackages } from "../src/lib/content";
 
 test("content bank keeps the reviewed classification shape", () => {
   expect(contentStats).toEqual({
-    uncountableCount: 100,
-    countableCount: 100,
-    totalEntries: 200,
-    totalQuestions: 200,
-    totalPackages: 20,
+    uncountableCount: 200,
+    countableCount: 200,
+    totalEntries: 400,
+    totalQuestions: 400,
+    totalPackages: 40,
   });
 
   expect(new Set(nounEntries.map((entry) => entry.id)).size).toBe(nounEntries.length);
+  expect(new Set(nounEntries.map((entry) => entry.displayNoun.toLowerCase())).size).toBe(nounEntries.length);
 
-  for (const term of highRiskTerms) {
+  for (const term of highRiskClassificationTerms) {
     const entry = nounEntries.find((item) => item.displayNoun === term);
     expect(entry, `${term} must exist`).toBeTruthy();
     expect(entry?.classificationHint, `${term} needs explicit classification context`).toBeTruthy();
@@ -64,4 +47,8 @@ test("test packages stay mixed and use only A/B classification options", () => {
       expect(question.explanation).toContain("Jawaban yang tepat");
     }
   }
+
+  expect(testPackages.flatMap((item) => item.questions).map((question) => question.nounId)).toHaveLength(
+    new Set(testPackages.flatMap((item) => item.questions).map((question) => question.nounId)).size,
+  );
 });

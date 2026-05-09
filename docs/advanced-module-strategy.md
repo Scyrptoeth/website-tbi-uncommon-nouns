@@ -11,7 +11,7 @@ The current MVP should stay focused on common noun classification:
 
 - A = Uncountable Noun.
 - B = Countable Noun.
-- 20 mixed packages.
+- 40 mixed packages.
 - Beginner-friendly contexts.
 
 The specialized/uncommon dataset should become a separate advanced module only after the common classification foundation is stable and reviewed.

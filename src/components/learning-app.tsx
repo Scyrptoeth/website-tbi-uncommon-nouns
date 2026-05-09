@@ -151,7 +151,7 @@ function Dashboard({
         </div>
         <div className="hero-mark" aria-hidden="true">
           <Sparkles size={28} />
-          <span>200</span>
+          <span>{contentStats.totalEntries}</span>
           <small>Noun Bank</small>
         </div>
       </section>
@@ -550,10 +550,30 @@ function AdminPanel({ progress }: { progress: ProgressState }) {
       </header>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <StatBlock label="Uncountable" value={contentStats.uncountableCount} total={100} tone="teal" />
-        <StatBlock label="Countable" value={contentStats.countableCount} total={100} tone="amber" />
-        <StatBlock label="Questions" value={contentStats.totalQuestions} total={200} tone="ink" />
-        <StatBlock label="Packages" value={contentStats.totalPackages} total={20} tone="teal" />
+        <StatBlock
+          label="Uncountable"
+          value={contentStats.uncountableCount}
+          total={contentStats.uncountableCount}
+          tone="teal"
+        />
+        <StatBlock
+          label="Countable"
+          value={contentStats.countableCount}
+          total={contentStats.countableCount}
+          tone="amber"
+        />
+        <StatBlock
+          label="Questions"
+          value={contentStats.totalQuestions}
+          total={contentStats.totalQuestions}
+          tone="ink"
+        />
+        <StatBlock
+          label="Packages"
+          value={contentStats.totalPackages}
+          total={contentStats.totalPackages}
+          tone="teal"
+        />
       </div>
 
       <section className="panel p-5">
