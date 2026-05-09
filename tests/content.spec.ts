@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 import { challengeNounEntries, challengePackages, challengeStats } from "../src/lib/challenge-content";
 import { contentStats, highRiskClassificationTerms, nounEntries, testPackages } from "../src/lib/content";
+import { learningNounEntries, learningPackages, learningStats } from "../src/lib/learning-content";
 
 test("content bank keeps the reviewed classification shape", () => {
   expect(contentStats).toEqual({
@@ -93,5 +94,32 @@ test("test packages stay mixed and use only A/B classification options", () => {
 
   expect(testPackages.flatMap((item) => item.questions).map((question) => question.nounId)).toHaveLength(
     new Set(testPackages.flatMap((item) => item.questions).map((question) => question.nounId)).size,
+  );
+});
+
+test("learning packages integrate common and advanced content as packages 1 through 60", () => {
+  expect(learningStats).toEqual({
+    uncountableCount: 300,
+    countableCount: 300,
+    totalEntries: 600,
+    totalQuestions: 600,
+    totalPackages: 60,
+  });
+
+  expect(learningNounEntries).toHaveLength(nounEntries.length + challengeNounEntries.length);
+  expect(learningPackages.map((item) => item.order)).toEqual(Array.from({ length: 60 }, (_, index) => index + 1));
+  expect(learningPackages.map((item) => item.title)).toEqual(
+    Array.from({ length: 60 }, (_, index) => `Noun Classification ${String(index + 1).padStart(2, "0")}`),
+  );
+
+  for (const item of learningPackages) {
+    expect(item.questions).toHaveLength(10);
+    expect(item.questions.filter((question) => question.answerKey === "A")).toHaveLength(5);
+    expect(item.questions.filter((question) => question.answerKey === "B")).toHaveLength(5);
+  }
+
+  expect(learningPackages[40].questions[0].prompt).toContain("Dalam konteks");
+  expect(learningPackages.flatMap((item) => item.questions).map((question) => question.nounId)).toHaveLength(
+    new Set(learningPackages.flatMap((item) => item.questions).map((question) => question.nounId)).size,
   );
 });

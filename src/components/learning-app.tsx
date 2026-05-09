@@ -15,22 +15,14 @@ import {
   Lock,
   Search,
   ShieldCheck,
-  Shuffle,
   Sparkles,
 } from "lucide-react";
 import type { ComponentType } from "react";
 import { useEffect, useMemo, useState } from "react";
-import {
-  contentStats,
-  nounEntries,
-  testPackages,
-  type NounEntry,
-  type NounType,
-  type TestPackage,
-} from "@/lib/content";
-import { challengePackages, challengeStats } from "@/lib/challenge-content";
+import { type NounEntry, type NounType, type TestPackage } from "@/lib/content";
+import { learningNounEntries, learningPackages, learningStats } from "@/lib/learning-content";
 
-type View = "dashboard" | "materi" | "flipcard" | "tes" | "tantangan" | "admin";
+type View = "dashboard" | "materi" | "flipcard" | "tes" | "admin";
 type Filter = "all" | NounType;
 type OptionKey = "A" | "B";
 
@@ -59,7 +51,6 @@ const views: Array<{ id: View; label: string; icon: ComponentType<{ size?: numbe
   { id: "materi", label: "Materi", icon: BookOpen },
   { id: "flipcard", label: "Flipcard", icon: Layers3 },
   { id: "tes", label: "Tes", icon: ClipboardCheck },
-  { id: "tantangan", label: "Tantangan", icon: Shuffle },
   { id: "admin", label: "SuperAdmin", icon: ShieldCheck },
 ];
 
@@ -72,7 +63,9 @@ const packageTypeLabel = {
   mixed: "Klasifikasi campuran",
 };
 
-const nounEntryById = new Map(nounEntries.map((entry) => [entry.id, entry]));
+const packagePageSize = 10;
+
+const nounEntryById = new Map(learningNounEntries.map((entry) => [entry.id, entry]));
 
 const getPackageEntries = (item: TestPackage): NounEntry[] =>
   item.questions
@@ -197,6 +190,20 @@ function PackageRail({
   onSelect: (slug: string) => void;
   onToggle: () => void;
 }) {
+  const selectedIndex = Math.max(
+    packages.findIndex((item) => item.slug === selectedSlug),
+    0,
+  );
+  const [pageIndex, setPageIndex] = useState(() => Math.floor(selectedIndex / packagePageSize));
+  const pageCount = Math.max(Math.ceil(packages.length / packagePageSize), 1);
+  const boundedPageIndex = Math.min(pageIndex, pageCount - 1);
+  const pageStart = boundedPageIndex * packagePageSize;
+  const visiblePackages = packages.slice(pageStart, pageStart + packagePageSize);
+  const previousPageStart = Math.max(pageStart - packagePageSize + 1, 1);
+  const previousPageEnd = Math.max(pageStart, 1);
+  const nextPageStart = Math.min(pageStart + packagePageSize + 1, packages.length);
+  const nextPageEnd = Math.min(pageStart + packagePageSize * 2, packages.length);
+
   return (
     <aside className={`package-rail ${collapsed ? "is-collapsed" : ""}`} aria-label={label}>
       <div className="package-rail-header">
@@ -215,8 +222,32 @@ function PackageRail({
         </button>
       </div>
 
+      <div className="package-page-controls" aria-label="Navigasi halaman paket">
+        <button
+          type="button"
+          aria-label={`Tampilkan paket ${previousPageStart} sampai ${previousPageEnd}`}
+          disabled={boundedPageIndex === 0}
+          onClick={() => setPageIndex((current) => Math.max(current - 1, 0))}
+        >
+          <ChevronLeft size={16} aria-hidden="true" />
+          <span>Sebelumnya</span>
+        </button>
+        <span>
+          {pageStart + 1}-{Math.min(pageStart + packagePageSize, packages.length)}
+        </span>
+        <button
+          type="button"
+          aria-label={`Tampilkan paket ${nextPageStart} sampai ${nextPageEnd}`}
+          disabled={boundedPageIndex >= pageCount - 1}
+          onClick={() => setPageIndex((current) => Math.min(current + 1, pageCount - 1))}
+        >
+          <span>Berikutnya</span>
+          <ChevronRight size={16} aria-hidden="true" />
+        </button>
+      </div>
+
       <div className="package-list">
-        {packages.map((item) => {
+        {visiblePackages.map((item) => {
           const isActive = selectedSlug === item.slug;
           return (
             <button
@@ -254,12 +285,10 @@ function Dashboard({
   progress: ProgressState;
   onJump: (view: View) => void;
 }) {
-  const submittedCount = countSubmittedPackages(testPackages, progress);
-  const draftCount = countDraftPackages(testPackages, progress);
-  const challengeSubmittedCount = countSubmittedPackages(challengePackages, progress);
-  const nextCard = nounEntries.find((entry) => !progress.viewedCards.includes(entry.id));
-  const nextPackage = testPackages.find((item) => !progress.submitted[item.slug]);
-  const nextChallengePackage = challengePackages.find((item) => !progress.submitted[item.slug]);
+  const submittedCount = countSubmittedPackages(learningPackages, progress);
+  const draftCount = countDraftPackages(learningPackages, progress);
+  const nextCard = learningNounEntries.find((entry) => !progress.viewedCards.includes(entry.id));
+  const nextPackage = learningPackages.find((item) => !progress.submitted[item.slug]);
 
   return (
     <div className="space-y-8">
@@ -274,21 +303,20 @@ function Dashboard({
         </div>
         <div className="hero-mark" aria-hidden="true">
           <Sparkles size={28} />
-          <span>{contentStats.totalEntries}</span>
+          <span>{learningStats.totalEntries}</span>
           <small>Noun Bank</small>
         </div>
       </section>
 
-      <div className="grid gap-4 lg:grid-cols-4">
+      <div className="grid gap-4 lg:grid-cols-3">
         <StatBlock
           label="Flipcard Dibuka"
           value={progress.viewedCards.length}
-          total={nounEntries.length}
+          total={learningNounEntries.length}
           tone="teal"
         />
-        <StatBlock label="Tes Submit" value={submittedCount} total={testPackages.length} tone="ink" />
-        <StatBlock label="Draft Tes" value={draftCount} total={testPackages.length} tone="amber" />
-        <StatBlock label="Tantangan Submit" value={challengeSubmittedCount} total={challengePackages.length} tone="amber" />
+        <StatBlock label="Tes Submit" value={submittedCount} total={learningPackages.length} tone="ink" />
+        <StatBlock label="Draft Tes" value={draftCount} total={learningPackages.length} tone="amber" />
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
@@ -306,24 +334,17 @@ function Dashboard({
           </span>
           <ChevronRight aria-hidden="true" />
         </button>
-        <button className="action-row" type="button" onClick={() => onJump("tantangan")}>
-          <span>
-            <span className="eyebrow">Tantangan berikutnya</span>
-            <strong>{nextChallengePackage ? nextChallengePackage.title : "Semua tantangan sudah submit"}</strong>
-          </span>
-          <ChevronRight aria-hidden="true" />
-        </button>
       </div>
     </div>
   );
 }
 
 function Materi({ progress }: { progress: ProgressState }) {
-  const [selectedSlug, setSelectedSlug] = useState(testPackages[0]?.slug ?? "");
+  const [selectedSlug, setSelectedSlug] = useState(learningPackages[0]?.slug ?? "");
   const [packageRailCollapsed, setPackageRailCollapsed] = useState(false);
   const [filter, setFilter] = useState<Filter>("all");
   const [query, setQuery] = useState("");
-  const selectedPackage = testPackages.find((item) => item.slug === selectedSlug) ?? testPackages[0];
+  const selectedPackage = learningPackages.find((item) => item.slug === selectedSlug) ?? learningPackages[0];
   const packageEntries = useMemo(
     () => (selectedPackage ? getPackageEntries(selectedPackage) : []),
     [selectedPackage],
@@ -348,7 +369,7 @@ function Materi({ progress }: { progress: ProgressState }) {
     <div className={`learning-layout ${packageRailCollapsed ? "package-collapsed" : ""}`}>
       <PackageRail
         label="Daftar paket materi"
-        packages={testPackages}
+        packages={learningPackages}
         selectedSlug={selectedPackage.slug}
         collapsed={packageRailCollapsed}
         progress={progress}
@@ -434,12 +455,12 @@ function Flipcard({
   progress: ProgressState;
   setProgress: (progress: ProgressState) => void;
 }) {
-  const [selectedSlug, setSelectedSlug] = useState(testPackages[0]?.slug ?? "");
+  const [selectedSlug, setSelectedSlug] = useState(learningPackages[0]?.slug ?? "");
   const [packageRailCollapsed, setPackageRailCollapsed] = useState(false);
   const [filter, setFilter] = useState<Filter>("all");
   const [index, setIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
-  const selectedPackage = testPackages.find((item) => item.slug === selectedSlug) ?? testPackages[0];
+  const selectedPackage = learningPackages.find((item) => item.slug === selectedSlug) ?? learningPackages[0];
   const packageEntries = useMemo(
     () => (selectedPackage ? getPackageEntries(selectedPackage) : []),
     [selectedPackage],
@@ -469,7 +490,7 @@ function Flipcard({
     <div className={`learning-layout ${packageRailCollapsed ? "package-collapsed" : ""}`}>
       <PackageRail
         label="Daftar paket flipcard"
-        packages={testPackages}
+        packages={learningPackages}
         selectedSlug={selectedPackage.slug}
         collapsed={packageRailCollapsed}
         progress={progress}
@@ -620,7 +641,7 @@ function AnswerProgressSummary({
 function TestPanel({
   progress,
   setProgress,
-  packages = testPackages,
+  packages = learningPackages,
   packageRailLabel = "Daftar paket tes",
   eyebrow = "Tes",
   subtitle = (item: TestPackage) => `${packageTypeLabel[item.packageType]} - ${item.questions.length} soal`,
@@ -802,8 +823,8 @@ function TestPanel({
 }
 
 function AdminPanel({ progress }: { progress: ProgressState }) {
-  const submittedCount = countSubmittedPackages(testPackages, progress);
-  const draftCount = countDraftPackages(testPackages, progress);
+  const submittedCount = countSubmittedPackages(learningPackages, progress);
+  const draftCount = countDraftPackages(learningPackages, progress);
 
   return (
     <div className="space-y-6">
@@ -815,36 +836,30 @@ function AdminPanel({ progress }: { progress: ProgressState }) {
         <Database className="text-[var(--accent-teal)]" aria-hidden="true" />
       </header>
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <StatBlock
           label="Uncountable"
-          value={contentStats.uncountableCount}
-          total={contentStats.uncountableCount}
+          value={learningStats.uncountableCount}
+          total={learningStats.uncountableCount}
           tone="teal"
         />
         <StatBlock
           label="Countable"
-          value={contentStats.countableCount}
-          total={contentStats.countableCount}
+          value={learningStats.countableCount}
+          total={learningStats.countableCount}
           tone="amber"
         />
         <StatBlock
           label="Questions"
-          value={contentStats.totalQuestions}
-          total={contentStats.totalQuestions}
+          value={learningStats.totalQuestions}
+          total={learningStats.totalQuestions}
           tone="ink"
         />
         <StatBlock
           label="Packages"
-          value={contentStats.totalPackages}
-          total={contentStats.totalPackages}
+          value={learningStats.totalPackages}
+          total={learningStats.totalPackages}
           tone="teal"
-        />
-        <StatBlock
-          label="Challenges"
-          value={challengeStats.totalPackages}
-          total={challengeStats.totalPackages}
-          tone="amber"
         />
       </div>
 
@@ -891,17 +906,6 @@ export function LearningApp() {
     materi: <Materi progress={progress} />,
     flipcard: <Flipcard progress={progress} setProgress={setProgress} />,
     tes: <TestPanel key="tes" progress={progress} setProgress={setProgress} />,
-    tantangan: (
-      <TestPanel
-        key="tantangan"
-        progress={progress}
-        setProgress={setProgress}
-        packages={challengePackages}
-        packageRailLabel="Daftar paket tantangan"
-        eyebrow="Tantangan"
-        subtitle={(item) => `Advanced mixed - ${item.questions.length} soal`}
-      />
-    ),
     admin: <AdminPanel progress={progress} />,
   }[view];
 

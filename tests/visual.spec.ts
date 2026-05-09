@@ -38,10 +38,13 @@ test("test package visual baseline", async ({ page }) => {
   await expect(page).toHaveScreenshot("test-package.png", screenshotOptions);
 });
 
-test("challenge package visual baseline", async ({ page }) => {
+test("integrated advanced package visual baseline", async ({ page }) => {
   await resetState(page);
-  await page.getByRole("button", { name: "Tantangan", exact: true }).click();
-  await page.getByRole("button", { name: /Tantangan 01/ }).click();
+  await page.getByRole("button", { name: /^Tes$/ }).click();
+  for (const range of ["11 sampai 20", "21 sampai 30", "31 sampai 40", "41 sampai 50"]) {
+    await page.getByLabel(`Tampilkan paket ${range}`).click();
+  }
+  await page.getByRole("button", { name: /Noun Classification 41/ }).click();
   await page.getByRole("button", { name: /A Uncountable Noun/ }).first().click();
-  await expect(page).toHaveScreenshot("challenge-package.png", screenshotOptions);
+  await expect(page).toHaveScreenshot("advanced-package.png", screenshotOptions);
 });
