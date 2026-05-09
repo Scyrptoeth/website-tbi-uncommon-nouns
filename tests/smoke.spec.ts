@@ -23,6 +23,12 @@ test("student learning surfaces render and accept interaction", async ({ page })
 
   await page.getByRole("button", { name: /^Tes$/ }).click();
   await page.getByRole("button", { name: /Noun Classification 01/ }).click();
+  const navigatorPosition = await page
+    .locator(".test-navigator")
+    .evaluate((element) => getComputedStyle(element).position);
+  if ((page.viewportSize()?.width ?? 0) >= 1024) {
+    expect(navigatorPosition).toBe("sticky");
+  }
   await expect(page.getByRole("button", { name: /A Uncountable Noun/ }).first()).toBeVisible();
   await expect(page.getByRole("button", { name: /B Countable Noun/ }).first()).toBeVisible();
   await page.locator(".option-button").first().click();

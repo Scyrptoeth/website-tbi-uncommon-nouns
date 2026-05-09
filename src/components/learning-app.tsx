@@ -519,7 +519,6 @@ function Flipcard({
           aria-label={`Balik kartu ${card.displayNoun}`}
         >
           <span className="flip-face flip-front" aria-hidden={flipped}>
-            <TypeBadge type={card.nounType} />
             <strong>{card.displayNoun}</strong>
             <small>{card.topic}</small>
           </span>
@@ -552,27 +551,33 @@ function Flipcard({
   );
 }
 
+type AnswerNumberItem = {
+  number: number;
+  questionId: string;
+};
+
 function AnswerNumberGroup({
   label,
-  numbers,
+  items,
   tone,
 }: {
   label: string;
-  numbers: number[];
+  items: AnswerNumberItem[];
   tone: "done" | "pending";
 }) {
   return (
     <div className="answer-number-group">
       <span>{label}</span>
       <div>
-        {numbers.map((number) => (
-          <span
-            key={number}
+        {items.map((item) => (
+          <a
+            key={item.questionId}
             className={`answer-number ${tone}`}
-            aria-label={`Soal ${number} ${label.toLowerCase()}`}
+            href={`#${item.questionId}`}
+            aria-label={`Soal ${item.number} ${label.toLowerCase()}`}
           >
-            {number}
-          </span>
+            {item.number}
+          </a>
         ))}
       </div>
     </div>
@@ -580,12 +585,12 @@ function AnswerNumberGroup({
 }
 
 function AnswerProgressSummary({
-  answeredNumbers,
-  unansweredNumbers,
+  answeredItems,
+  unansweredItems,
   total,
 }: {
-  answeredNumbers: number[];
-  unansweredNumbers: number[];
+  answeredItems: AnswerNumberItem[];
+  unansweredItems: AnswerNumberItem[];
   total: number;
 }) {
   return (
@@ -597,16 +602,16 @@ function AnswerProgressSummary({
         </div>
         <div>
           <span>Sudah dijawab</span>
-          <strong>{answeredNumbers.length}</strong>
+          <strong>{answeredItems.length}</strong>
         </div>
         <div>
           <span>Belum dijawab</span>
-          <strong>{unansweredNumbers.length}</strong>
+          <strong>{unansweredItems.length}</strong>
         </div>
       </div>
       <div className="answer-number-grid">
-        <AnswerNumberGroup label="Nomor sudah dijawab" numbers={answeredNumbers} tone="done" />
-        <AnswerNumberGroup label="Nomor belum dijawab" numbers={unansweredNumbers} tone="pending" />
+        <AnswerNumberGroup label="Nomor sudah dijawab" items={answeredItems} tone="done" />
+        <AnswerNumberGroup label="Nomor belum dijawab" items={unansweredItems} tone="pending" />
       </div>
     </section>
   );
@@ -686,12 +691,16 @@ function TestPanel({
     writeProgress(next);
   };
 
-  const answeredNumbers = selectedPackage.questions
-    .map((question, index) => (answers[question.id] ? index + 1 : null))
-    .filter((number): number is number => number !== null);
-  const unansweredNumbers = selectedPackage.questions
-    .map((question, index) => (answers[question.id] ? null : index + 1))
-    .filter((number): number is number => number !== null);
+  const answeredItems = selectedPackage.questions
+    .map((question, index) =>
+      answers[question.id] ? { number: index + 1, questionId: `question-${question.id}` } : null,
+    )
+    .filter((item): item is AnswerNumberItem => item !== null);
+  const unansweredItems = selectedPackage.questions
+    .map((question, index) =>
+      answers[question.id] ? null : { number: index + 1, questionId: `question-${question.id}` },
+    )
+    .filter((item): item is AnswerNumberItem => item !== null);
 
   return (
     <div className={`learning-layout ${packageRailCollapsed ? "package-collapsed" : ""}`}>
@@ -720,6 +729,20 @@ function TestPanel({
           ) : null}
         </header>
 
+        {!submitted ? (
+          <div className="test-navigator">
+            <AnswerProgressSummary
+              answeredItems={answeredItems}
+              unansweredItems={unansweredItems}
+              total={selectedPackage.questions.length}
+            />
+            <button className="primary-button" type="button" onClick={submit}>
+              <ClipboardCheck size={18} aria-hidden="true" />
+              Final submit
+            </button>
+          </div>
+        ) : null}
+
         <div className="space-y-5">
           {selectedPackage.questions.map((question, questionIndex) => {
             const selected = answers[question.id];
@@ -727,7 +750,7 @@ function TestPanel({
             const isUnanswered = submitted && !selected;
 
             return (
-              <article className="question-block" key={question.id}>
+              <article className="question-block" id={`question-${question.id}`} key={question.id}>
                 <div className="question-title">
                   <span>{questionIndex + 1}</span>
                   <h3>{question.prompt}</h3>
@@ -773,20 +796,6 @@ function TestPanel({
             );
           })}
         </div>
-
-        {!submitted ? (
-          <div className="submit-bar">
-            <AnswerProgressSummary
-              answeredNumbers={answeredNumbers}
-              unansweredNumbers={unansweredNumbers}
-              total={selectedPackage.questions.length}
-            />
-            <button className="primary-button" type="button" onClick={submit}>
-              <ClipboardCheck size={18} aria-hidden="true" />
-              Final submit
-            </button>
-          </div>
-        ) : null}
       </section>
     </div>
   );

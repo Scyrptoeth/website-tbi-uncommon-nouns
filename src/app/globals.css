@@ -406,6 +406,7 @@ input:focus-visible {
 }
 
 .flip-front strong {
+  margin-block: auto;
   font-size: clamp(3rem, 14vw, 9rem);
   font-weight: 800;
   letter-spacing: 0;
@@ -437,7 +438,8 @@ input:focus-visible {
 }
 
 .flip-back small {
-  max-width: 70ch;
+  width: 100%;
+  max-width: none;
   color: var(--muted);
   line-height: 1.6;
 }
@@ -559,6 +561,7 @@ input:focus-visible {
 
 .question-block {
   padding: 18px;
+  scroll-margin-top: 96px;
 }
 
 .question-title {
@@ -661,8 +664,8 @@ input:focus-visible {
   font-family: var(--font-mono), monospace;
 }
 
-.submit-bar {
-  margin-top: 18px;
+.test-navigator {
+  margin: 18px 0;
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -670,8 +673,15 @@ input:focus-visible {
   gap: 12px;
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: var(--surface);
+  background: color-mix(in srgb, var(--surface), var(--paper) 16%);
   padding: 12px;
+  backdrop-filter: blur(14px);
+}
+
+.test-navigator .primary-button {
+  min-height: 52px;
+  flex: 0 0 auto;
+  justify-content: center;
 }
 
 .answer-progress-summary {
@@ -727,6 +737,7 @@ input:focus-visible {
   border-radius: 999px;
   font-family: var(--font-mono), monospace;
   font-size: 0.85rem;
+  text-decoration: none;
 }
 
 .answer-number.done {
@@ -819,23 +830,23 @@ input:focus-visible {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .submit-bar {
+  .test-navigator {
     flex-direction: row;
     align-items: end;
   }
 }
 @media (min-width: 1024px) {
   .app-sidebar {
-    width: 260px;
+    width: 224px;
     min-height: 100dvh;
     border-right: 1px solid var(--line);
     border-bottom: 0;
-    padding: 28px 16px;
+    padding: 24px 12px;
   }
 
   .app-sidebar.is-collapsed {
-    width: 88px;
-    padding-inline: 16px;
+    width: 72px;
+    padding-inline: 12px;
   }
 
   .app-sidebar.is-collapsed .sidebar-head {
@@ -861,16 +872,32 @@ input:focus-visible {
   .app-sidebar.is-collapsed nav button {
     justify-content: center;
   }
-}
 
-@media (min-width: 1280px) {
   .learning-layout {
-    grid-template-columns: 320px minmax(0, 1fr);
+    grid-template-columns: clamp(224px, 21vw, 272px) minmax(0, 1fr);
     align-items: start;
   }
 
   .learning-layout.package-collapsed {
-    grid-template-columns: 72px minmax(0, 1fr);
+    grid-template-columns: 64px minmax(0, 1fr);
+  }
+
+  .package-rail {
+    position: sticky;
+    top: 24px;
+    max-height: calc(100dvh - 48px);
+    overflow: auto;
+    padding-right: 2px;
+  }
+
+  .test-navigator {
+    position: sticky;
+    top: 16px;
+    z-index: 18;
+  }
+
+  .question-block {
+    scroll-margin-top: 220px;
   }
 }
 

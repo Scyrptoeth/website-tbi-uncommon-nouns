@@ -64,6 +64,7 @@ test("keyboard and ARIA state are exposed for navigation, filters, and flipcards
   const flipcard = page.getByRole("button", { name: /Balik kartu access/ });
   await expect(flipcard).toHaveAttribute("aria-expanded", "false");
   await expect(page.locator(".flip-front")).toHaveAttribute("aria-hidden", "false");
+  await expect(page.locator(".flip-front .badge")).toHaveCount(0);
   await expect(page.locator(".flip-back")).toHaveAttribute("aria-hidden", "true");
   await flipcard.press("Enter");
   await expect(flipcard).toHaveAttribute("aria-expanded", "true");
