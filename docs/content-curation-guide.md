@@ -150,14 +150,15 @@ Example pattern, not final content:
 
 ## 7. Package Design
 
-Initial packages:
+Current package families:
 
-- `uncountable-01` to `uncountable-10`.
-- `countable-01` to `countable-10`.
+- `classification-01` to `classification-40` for common mixed practice.
+- `challenge-01` to `challenge-20` for separated advanced/specialized mixed practice.
 
 Each package:
 
 - 10 questions.
+- Mixed uncountable/countable composition, so the package label does not leak the answer.
 - Balanced difficulty.
 - No duplicate noun within the same package unless testing different meanings.
 - One dominant concept per question.
@@ -197,5 +198,7 @@ The next content task should create:
 - `test-packages.csv` with 40 packages.
 - `questions.csv` with 400 questions.
 - `question-options.csv` with 800 options.
+- `challenge-packages.csv` with 20 separated advanced packages when moving Tantangan into database-backed content.
+- `challenge-questions.csv` with 200 challenge questions when moving Tantangan into database-backed content.
 
 Each noun/meaning row should include structured source fields, but not copied official exam text.

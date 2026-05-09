@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  ArrowUp,
   BarChart3,
   BookOpen,
   CheckCircle2,
@@ -14,6 +15,7 @@ import {
   Lock,
   Search,
   ShieldCheck,
+  Shuffle,
   Sparkles,
 } from "lucide-react";
 import type { ComponentType } from "react";
@@ -26,8 +28,9 @@ import {
   type NounType,
   type TestPackage,
 } from "@/lib/content";
+import { challengePackages, challengeStats } from "@/lib/challenge-content";
 
-type View = "dashboard" | "materi" | "flipcard" | "tes" | "admin";
+type View = "dashboard" | "materi" | "flipcard" | "tes" | "tantangan" | "admin";
 type Filter = "all" | NounType;
 type OptionKey = "A" | "B";
 
@@ -56,6 +59,7 @@ const views: Array<{ id: View; label: string; icon: ComponentType<{ size?: numbe
   { id: "materi", label: "Materi", icon: BookOpen },
   { id: "flipcard", label: "Flipcard", icon: Layers3 },
   { id: "tes", label: "Tes", icon: ClipboardCheck },
+  { id: "tantangan", label: "Tantangan", icon: Shuffle },
   { id: "admin", label: "SuperAdmin", icon: ShieldCheck },
 ];
 
@@ -77,7 +81,8 @@ const getPackageEntries = (item: TestPackage): NounEntry[] =>
 
 const scrollToTop = () => {
   if (typeof window === "undefined") return;
-  window.scrollTo({ top: 0 });
+  const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  window.scrollTo({ top: 0, behavior: prefersReducedMotion ? "auto" : "smooth" });
 };
 
 const readProgress = (): ProgressState => {
@@ -101,6 +106,12 @@ const writeProgress = (progress: ProgressState) => {
 };
 
 const percent = (value: number, total: number) => Math.round((value / Math.max(total, 1)) * 100);
+
+const countSubmittedPackages = (packages: TestPackage[], progress: ProgressState) =>
+  packages.filter((item) => progress.submitted[item.slug]).length;
+
+const countDraftPackages = (packages: TestPackage[], progress: ProgressState) =>
+  packages.filter((item) => progress.drafts[item.slug] && !progress.submitted[item.slug]).length;
 
 function StatBlock({
   label,
@@ -169,6 +180,7 @@ const packageStatusLabel = (item: TestPackage, progress: ProgressState) => {
 
 function PackageRail({
   label,
+  packages,
   selectedSlug,
   collapsed,
   progress,
@@ -177,6 +189,7 @@ function PackageRail({
   onToggle,
 }: {
   label: string;
+  packages: TestPackage[];
   selectedSlug: string;
   collapsed: boolean;
   progress: ProgressState;
@@ -203,7 +216,7 @@ function PackageRail({
       </div>
 
       <div className="package-list">
-        {testPackages.map((item) => {
+        {packages.map((item) => {
           const isActive = selectedSlug === item.slug;
           return (
             <button
@@ -241,10 +254,12 @@ function Dashboard({
   progress: ProgressState;
   onJump: (view: View) => void;
 }) {
-  const submittedCount = Object.keys(progress.submitted).length;
-  const draftCount = Object.keys(progress.drafts).filter((slug) => !progress.submitted[slug]).length;
+  const submittedCount = countSubmittedPackages(testPackages, progress);
+  const draftCount = countDraftPackages(testPackages, progress);
+  const challengeSubmittedCount = countSubmittedPackages(challengePackages, progress);
   const nextCard = nounEntries.find((entry) => !progress.viewedCards.includes(entry.id));
   const nextPackage = testPackages.find((item) => !progress.submitted[item.slug]);
+  const nextChallengePackage = challengePackages.find((item) => !progress.submitted[item.slug]);
 
   return (
     <div className="space-y-8">
@@ -264,7 +279,7 @@ function Dashboard({
         </div>
       </section>
 
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="grid gap-4 lg:grid-cols-4">
         <StatBlock
           label="Flipcard Dibuka"
           value={progress.viewedCards.length}
@@ -273,6 +288,7 @@ function Dashboard({
         />
         <StatBlock label="Tes Submit" value={submittedCount} total={testPackages.length} tone="ink" />
         <StatBlock label="Draft Tes" value={draftCount} total={testPackages.length} tone="amber" />
+        <StatBlock label="Tantangan Submit" value={challengeSubmittedCount} total={challengePackages.length} tone="amber" />
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
@@ -287,6 +303,13 @@ function Dashboard({
           <span>
             <span className="eyebrow">Paket berikutnya</span>
             <strong>{nextPackage ? nextPackage.title : "Semua paket sudah submit"}</strong>
+          </span>
+          <ChevronRight aria-hidden="true" />
+        </button>
+        <button className="action-row" type="button" onClick={() => onJump("tantangan")}>
+          <span>
+            <span className="eyebrow">Tantangan berikutnya</span>
+            <strong>{nextChallengePackage ? nextChallengePackage.title : "Semua tantangan sudah submit"}</strong>
           </span>
           <ChevronRight aria-hidden="true" />
         </button>
@@ -325,6 +348,7 @@ function Materi({ progress }: { progress: ProgressState }) {
     <div className={`learning-layout ${packageRailCollapsed ? "package-collapsed" : ""}`}>
       <PackageRail
         label="Daftar paket materi"
+        packages={testPackages}
         selectedSlug={selectedPackage.slug}
         collapsed={packageRailCollapsed}
         progress={progress}
@@ -445,6 +469,7 @@ function Flipcard({
     <div className={`learning-layout ${packageRailCollapsed ? "package-collapsed" : ""}`}>
       <PackageRail
         label="Daftar paket flipcard"
+        packages={testPackages}
         selectedSlug={selectedPackage.slug}
         collapsed={packageRailCollapsed}
         progress={progress}
@@ -590,13 +615,21 @@ function AnswerProgressSummary({
 function TestPanel({
   progress,
   setProgress,
+  packages = testPackages,
+  packageRailLabel = "Daftar paket tes",
+  eyebrow = "Tes",
+  subtitle = (item: TestPackage) => `${packageTypeLabel[item.packageType]} - ${item.questions.length} soal`,
 }: {
   progress: ProgressState;
   setProgress: (progress: ProgressState) => void;
+  packages?: TestPackage[];
+  packageRailLabel?: string;
+  eyebrow?: string;
+  subtitle?: (item: TestPackage) => string;
 }) {
-  const [selectedSlug, setSelectedSlug] = useState(testPackages[0]?.slug ?? "");
+  const [selectedSlug, setSelectedSlug] = useState(packages[0]?.slug ?? "");
   const [packageRailCollapsed, setPackageRailCollapsed] = useState(false);
-  const selectedPackage = testPackages.find((item) => item.slug === selectedSlug) ?? testPackages[0];
+  const selectedPackage = packages.find((item) => item.slug === selectedSlug) ?? packages[0];
   const submitted = selectedPackage ? progress.submitted[selectedPackage.slug] : undefined;
   const draft = selectedPackage ? progress.drafts[selectedPackage.slug] : undefined;
   const [answerCache, setAnswerCache] = useState<Record<string, Record<string, OptionKey>>>({});
@@ -663,11 +696,12 @@ function TestPanel({
   return (
     <div className={`learning-layout ${packageRailCollapsed ? "package-collapsed" : ""}`}>
       <PackageRail
-        label="Daftar paket tes"
+        label={packageRailLabel}
+        packages={packages}
         selectedSlug={selectedPackage.slug}
         collapsed={packageRailCollapsed}
         progress={progress}
-        subtitle={(item) => `${packageTypeLabel[item.packageType]} - ${item.questions.length} soal`}
+        subtitle={subtitle}
         onSelect={setSelectedSlug}
         onToggle={() => setPackageRailCollapsed((value) => !value)}
       />
@@ -675,7 +709,7 @@ function TestPanel({
       <section className="test-surface">
         <header className="section-header">
           <div>
-            <p className="eyebrow">Tes</p>
+            <p className="eyebrow">{eyebrow}</p>
             <h2>{selectedPackage.title}</h2>
           </div>
           {submitted ? (
@@ -759,8 +793,8 @@ function TestPanel({
 }
 
 function AdminPanel({ progress }: { progress: ProgressState }) {
-  const submittedCount = Object.keys(progress.submitted).length;
-  const draftCount = Object.keys(progress.drafts).filter((slug) => !progress.submitted[slug]).length;
+  const submittedCount = countSubmittedPackages(testPackages, progress);
+  const draftCount = countDraftPackages(testPackages, progress);
 
   return (
     <div className="space-y-6">
@@ -772,7 +806,7 @@ function AdminPanel({ progress }: { progress: ProgressState }) {
         <Database className="text-[var(--accent-teal)]" aria-hidden="true" />
       </header>
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
         <StatBlock
           label="Uncountable"
           value={contentStats.uncountableCount}
@@ -796,6 +830,12 @@ function AdminPanel({ progress }: { progress: ProgressState }) {
           value={contentStats.totalPackages}
           total={contentStats.totalPackages}
           tone="teal"
+        />
+        <StatBlock
+          label="Challenges"
+          value={challengeStats.totalPackages}
+          total={challengeStats.totalPackages}
+          tone="amber"
         />
       </div>
 
@@ -823,17 +863,36 @@ export function LearningApp() {
   const [view, setView] = useState<View>("dashboard");
   const [progress, setProgress] = useState<ProgressState>(() => readProgress());
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [showScrollTop, setShowScrollTop] = useState(false);
 
   const selectView = (nextView: View) => {
     setView(nextView);
     scrollToTop();
   };
 
+  useEffect(() => {
+    const updateScrollTopVisibility = () => setShowScrollTop(window.scrollY > 520);
+    updateScrollTopVisibility();
+    window.addEventListener("scroll", updateScrollTopVisibility, { passive: true });
+    return () => window.removeEventListener("scroll", updateScrollTopVisibility);
+  }, []);
+
   const currentView = {
     dashboard: <Dashboard progress={progress} onJump={selectView} />,
     materi: <Materi progress={progress} />,
     flipcard: <Flipcard progress={progress} setProgress={setProgress} />,
-    tes: <TestPanel progress={progress} setProgress={setProgress} />,
+    tes: <TestPanel key="tes" progress={progress} setProgress={setProgress} />,
+    tantangan: (
+      <TestPanel
+        key="tantangan"
+        progress={progress}
+        setProgress={setProgress}
+        packages={challengePackages}
+        packageRailLabel="Daftar paket tantangan"
+        eyebrow="Tantangan"
+        subtitle={(item) => `Advanced mixed - ${item.questions.length} soal`}
+      />
+    ),
     admin: <AdminPanel progress={progress} />,
   }[view];
 
@@ -879,6 +938,14 @@ export function LearningApp() {
 
         <main className="flex-1 px-4 py-5 sm:px-6 lg:px-8 lg:py-8">{currentView}</main>
       </div>
+      <button
+        className={`scroll-top-button ${showScrollTop ? "is-visible" : ""}`}
+        type="button"
+        aria-label="Kembali ke bagian atas"
+        onClick={scrollToTop}
+      >
+        <ArrowUp size={20} aria-hidden="true" />
+      </button>
     </div>
   );
 }

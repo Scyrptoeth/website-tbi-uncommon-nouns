@@ -1,7 +1,47 @@
 # Refined Prompt - Website TBI Uncommon Uncountable and Countable Noun
 
 Date: 2026-05-09
-Status: Historical initial refined prompt; current active implementation is `TBI - Noun Classifier` with 200 common uncountable nouns, 200 common countable nouns, 400 A/B questions, and 40 mixed packages.
+Status: Historical initial refined prompt plus current Phase A execution prompt.
+
+## Current Phase A Refined Prompt
+
+```text
+Use the Website TBI Noun Classifier start context. Implement only the safe static Phase A scope.
+
+Keep the existing common learning flow intact:
+- 200 common uncountable nouns.
+- 200 common countable nouns.
+- 40 mixed Noun Classification packages.
+- Materi, Flipcard, and Tes remain package-consistent.
+
+Reactivate the archived specialized/uncommon noun set as a separated Tantangan practice surface:
+- Use 100 archived uncountable nouns and 100 archived countable nouns.
+- Normalize them into a runtime content module without importing the archive text file directly.
+- Build 20 Tantangan packages, 10 questions per package.
+- Every Tantangan package must be mixed, with 5 Uncountable answers and 5 Countable answers.
+- Do not create obvious answer patterns such as strict A/B alternation or grouped first-half answer keys.
+- Keep A = Uncountable Noun and B = Countable Noun.
+- Include contextual prompts and Indonesian explanations.
+- Keep claimAllowed=false and do not claim real TOEFL/TOEIC/IELTS appearance.
+
+Add a new sidebar item:
+- Label: Tantangan.
+- Clicking it opens a package sub-sidebar.
+- Clicking a package shows its 10 mixed challenge questions.
+- Draft, submit, score, answer review, and lock behavior follow the existing Tes behavior.
+
+Add a scroll-to-top button:
+- One-click return to top.
+- Accessible label.
+- Respect prefers-reduced-motion.
+
+Do not implement SuperAdmin noun/package/question CRUD in this phase.
+Reason: real CRUD requires database, authentication, authorization, validation, attempt snapshots, and audit logs.
+
+Update tests and documentation, then verify with typecheck, lint, build, content tests, accessibility tests, E2E tests, visual regression, and browser/live checks. Commit, push, deploy to Vercel, and update project memory only after verification passes.
+```
+
+## Historical Initial Refined Prompt
 
 ```text
 Use /start-dev, ui-ux-pro-max, taste-ui, and skill-creator as applicable.

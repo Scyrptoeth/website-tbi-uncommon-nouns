@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { challengeNounEntries, challengePackages, challengeStats } from "../src/lib/challenge-content";
 import { contentStats, highRiskClassificationTerms, nounEntries, testPackages } from "../src/lib/content";
 
 test("content bank keeps the reviewed classification shape", () => {
@@ -29,6 +30,48 @@ test("content bank keeps the reviewed classification shape", () => {
     expect(entry.singularForm, `${entry.displayNoun} needs a singular form`).toBeTruthy();
     expect(entry.pluralForm, `${entry.displayNoun} needs a plural form`).toBeTruthy();
   }
+});
+
+test("advanced challenge content reactivates archived nouns as mixed packages", () => {
+  expect(challengeStats).toEqual({
+    uncountableCount: 100,
+    countableCount: 100,
+    totalEntries: 200,
+    totalQuestions: 200,
+    totalPackages: 20,
+  });
+
+  expect(new Set(challengeNounEntries.map((entry) => entry.id)).size).toBe(challengeNounEntries.length);
+  expect(new Set(challengeNounEntries.map((entry) => entry.displayNoun.toLowerCase())).size).toBe(
+    challengeNounEntries.length,
+  );
+
+  for (const item of challengePackages) {
+    expect(item.questions).toHaveLength(10);
+    expect(item.packageType).toBe("mixed");
+    expect(item.questions.filter((question) => question.answerKey === "A")).toHaveLength(5);
+    expect(item.questions.filter((question) => question.answerKey === "B")).toHaveLength(5);
+
+    const answerSequence = item.questions.map((question) => question.answerKey).join("");
+    expect(answerSequence).not.toBe("ABABABABAB");
+    expect(answerSequence).not.toBe("BABABABABA");
+    expect(answerSequence.startsWith("AAAAA")).toBe(false);
+    expect(answerSequence.startsWith("BBBBB")).toBe(false);
+
+    for (const question of item.questions) {
+      expect(question.options.map((option) => option.key)).toEqual(["A", "B"]);
+      expect(question.options.map((option) => option.text)).toEqual([
+        "Uncountable Noun",
+        "Countable Noun",
+      ]);
+      expect(question.prompt).toContain("Dalam konteks");
+      expect(question.explanation).toContain("Jawaban yang tepat");
+    }
+  }
+
+  expect(challengePackages.flatMap((item) => item.questions).map((question) => question.nounId)).toHaveLength(
+    new Set(challengePackages.flatMap((item) => item.questions).map((question) => question.nounId)).size,
+  );
 });
 
 test("test packages stay mixed and use only A/B classification options", () => {

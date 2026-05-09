@@ -31,4 +31,9 @@ test("student learning surfaces render and accept interaction", async ({ page })
   await page.locator(".option-button").first().click();
   await expect(page.getByText("Belum dijawab", { exact: true })).toBeVisible();
   await expect(page.getByLabel("Soal 1 nomor belum dijawab")).toBeVisible();
+
+  await page.getByRole("button", { name: "Tantangan", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Tantangan 01" })).toBeVisible();
+  await expect(page.getByRole("button", { name: /A Uncountable Noun/ }).first()).toBeVisible();
+  await expect(page.getByRole("button", { name: /B Countable Noun/ }).first()).toBeVisible();
 });

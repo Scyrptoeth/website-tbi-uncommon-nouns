@@ -1,22 +1,23 @@
 # Advanced / Uncommon Module Strategy
 
 Date: 2026-05-09
-Status: Decision recorded, implementation deferred
+Status: Phase A challenge practice implemented; full advanced CMS deferred
 
 ## Product Decision
 
-Keep the archived specialized/uncommon noun dataset hidden from the active student UI for now.
+Keep the active common module focused on beginner classification, while exposing the archived specialized/uncommon noun dataset only through a clearly separated `Tantangan` practice surface.
 
 The current MVP should stay focused on common noun classification:
 
 - A = Uncountable Noun.
 - B = Countable Noun.
-- 40 mixed packages.
+- 40 common mixed packages.
+- 20 advanced `Tantangan` mixed packages.
 - Beginner-friendly contexts.
 
-The specialized/uncommon dataset should become a separate advanced module only after the common classification foundation is stable and reviewed.
+The current `Tantangan` release is a static Phase A practice module. The full database-backed advanced module, with review states and SuperAdmin content workflow, remains deferred.
 
-## Why Not Import The Archive Now
+## Why Not Mix The Archive Into Common Tes
 
 The old dataset is useful, but it targets a different learning level:
 
@@ -25,24 +26,24 @@ The old dataset is useful, but it targets a different learning level:
 - stronger need for structured evidence;
 - higher chance students memorize rare words without mastering countability basics.
 
-Mixing it into the active common module would weaken the pedagogy of the current product.
+Mixing it into the active common module would weaken the pedagogy of the current product. Therefore, the archive is normalized into `src/lib/challenge-content.ts` and shown only under the `Tantangan` sidebar.
 
 ## Proposed Advanced Module Shape
 
-Future module label:
+Current Phase A label:
 
-- `Advanced / Uncommon Nouns`
+- `Tantangan`
 
-Suggested route:
+Current surface:
 
-- `/advanced`
+- Sidebar view inside the static MVP.
 
-Suggested package strategy:
+Current package strategy:
 
-- 10 to 20 mixed packages.
+- 20 mixed packages.
 - Each package includes both uncountable and countable nouns.
 - Every ambiguous noun must include context in the prompt.
-- Every entry must pass tutor review before publish.
+- Every entry uses structured source metadata with `claimAllowed=false`.
 
 Suggested content metadata:
 
@@ -58,9 +59,17 @@ Suggested content metadata:
 
 ## Import Rule
 
-Do not import `docs/archive/specialized-content-2026-05-09.ts.txt` directly into production content.
+Do not import `docs/archive/specialized-content-2026-05-09.ts.txt` directly into runtime code.
 
-Before any import:
+Current Phase A uses a normalized static module:
+
+- `src/lib/challenge-content.ts`
+- 100 advanced uncountable rows.
+- 100 advanced countable rows.
+- 20 mixed packages.
+- Deterministic non-alternating answer order.
+
+Before any future database import:
 
 1. Convert archive rows into the normalized content template.
 2. Review countability by meaning and context.
@@ -69,9 +78,10 @@ Before any import:
 5. Keep `claimAllowed=false` unless exact source evidence supports a stronger claim.
 6. Publish only after tutor approval.
 
-## Acceptance Criteria Before Building This Module
+## Acceptance Criteria Before Full Database Module
 
 - Common module content QA is complete.
+- Static `Tantangan` challenge practice is verified with content, accessibility, visual, and E2E tests.
 - Authenticated progress exists.
 - SuperAdmin content review workflow exists.
 - Content import/export workflow exists.

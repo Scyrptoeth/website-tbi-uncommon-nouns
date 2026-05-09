@@ -1,7 +1,7 @@
 # Grand Design Website TBI Uncommon Uncountable and Countable Noun
 
 Date: 2026-05-09
-Status: Implemented MVP with common noun classification pivot
+Status: Implemented MVP with common noun classification and separated Tantangan practice
 Formal project name: Website-TBI-Uncommon-Uncountable-and-Countable-Noun
 Recommended public title: TBI - Noun Classifier
 Owner: Bimbel Persiapantubel
@@ -15,6 +15,7 @@ The product has three core tools:
 1. Materi: structured noun reference and self-study.
 2. Flipcard: active recall practice with progress tracking.
 3. Tes: package-based multiple-choice assessment with scoring and Indonesian explanations.
+4. Tantangan: separated advanced mixed practice using the archived specialized/uncommon set.
 
 The project should be designed production-ready from the start. Content should be manageable through SuperAdmin workflows, progress should persist by student account, and the architecture should be compatible with the future Ekosistem Persiapantubel.
 
@@ -53,7 +54,8 @@ Recommended identity direction:
 
 - Use "TBI - Noun Classifier" as the current public title because the active learning goal is classifying whether a noun is uncountable or countable.
 - Keep the formal project/documentation name as Website-TBI-Uncommon-Uncountable-and-Countable-Noun.
-- Keep the original specialized/uncommon seed list archived in source control and out of the student UI.
+- Keep the original specialized/uncommon seed list archived in source control and out of the active common learning flow.
+- Expose the archived specialized/uncommon set only through the separated `Tantangan` practice surface until database-backed review states exist.
 - Use database-backed student progress. LocalStorage-only progress is not enough for ecosystem readiness.
 - Use registered WhatsApp number + password authentication, aligned with the existing TBI verbs project.
 - Use PostgreSQL as operational storage.
@@ -73,6 +75,11 @@ Recommended identity direction:
 - 40 total test packages:
   - 40 mixed classification packages.
   - 10 questions per package.
+- 20 separated `Tantangan` packages:
+  - 100 advanced/specialized uncountable nouns.
+  - 100 advanced/specialized countable nouns.
+  - 200 A/B classification questions.
+  - deterministic mixed ordering without simple answer patterns.
 
 ### 4.2 Noun Entry Fields
 

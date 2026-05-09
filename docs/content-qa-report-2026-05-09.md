@@ -12,7 +12,12 @@ This QA pass reviewed the active common noun bank in `src/lib/content.ts` for bi
 - 400 A/B classification questions.
 - 40 mixed packages.
 
-The old specialized/uncommon noun list remains archived in `docs/archive/specialized-content-2026-05-09.ts.txt` and is not part of this active QA scope.
+The old specialized/uncommon noun list remains archived in `docs/archive/specialized-content-2026-05-09.ts.txt` as the non-executable source reference. A normalized challenge subset is now active in `src/lib/challenge-content.ts`:
+
+- 100 advanced/specialized uncountable nouns.
+- 100 advanced/specialized countable nouns.
+- 200 A/B classification questions.
+- 20 mixed `Tantangan` packages.
 
 ## Implemented Corrections
 
@@ -76,10 +81,17 @@ The old specialized/uncommon noun list remains archived in `docs/archive/special
   - all countable nouns have singular and plural forms;
   - each package stays mixed with 5 A and 5 B answer keys;
   - options remain exactly A/B.
+- Challenge content also throws/tests if:
+  - count is not exactly 100 uncountable + 100 countable;
+  - total challenge questions are not exactly 200;
+  - total challenge packages are not exactly 20;
+  - challenge packages are not mixed 5 A + 5 B;
+  - challenge answer order exposes a simple alternating or grouped pattern.
 
 ## Residual Risk
 
 - Some common English nouns remain meaning-sensitive by nature. The active MVP now handles the highest-risk items through context, but a tutor should still periodically review classroom feedback.
+- Challenge content is more specialized and should be treated as advanced practice until tutor review and database-backed review states exist.
 - No item claims appearance in TOEFL, TOEIC, or IELTS. `claimAllowed` remains `false` for the active seed data.
 
 ## Next Content Step

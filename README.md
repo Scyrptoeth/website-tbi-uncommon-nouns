@@ -8,9 +8,10 @@ Website pembelajaran Persiapantubel untuk mengenali common uncountable nouns dan
 - 200 common countable nouns.
 - 40 paket tes.
 - 400 soal klasifikasi pilihan A/B.
-- Materi, Flipcard, Tes, progress chart, dan ringkasan SuperAdmin.
+- 200 advanced/specialized challenge nouns dari arsip lama, disusun menjadi 20 paket Tantangan mixed.
+- Materi, Flipcard, Tes, Tantangan, progress chart, dan ringkasan SuperAdmin.
 - Progress demo tersimpan di browser localStorage.
-- Content QA guard untuk noun ambigu dan mixed package.
+- Content QA guard untuk noun ambigu, mixed package, dan pola jawaban Tantangan.
 - Accessibility, keyboard, content-shape, dan visual regression tests.
 
 ## Scripts
@@ -29,7 +30,7 @@ Visual regression snapshots are calibrated for the local macOS workspace. On oth
 
 ## Production Notes
 
-Rilis ini memakai seed data di source agar bisa langsung deploy tanpa secret database. Dataset specialized lama disimpan di `docs/archive/` dan tidak dirender di website. Fase berikutnya memindahkan progress, auth Nomor WA, SuperAdmin CMS, dan attempt history ke PostgreSQL sesuai grand design.
+Rilis ini memakai seed data di source agar bisa langsung deploy tanpa secret database. Dataset specialized lama tetap disimpan sebagai arsip non-eksekusi di `docs/archive/`, lalu subset normalized-nya diaktifkan sebagai paket `Tantangan` melalui `src/lib/challenge-content.ts`. Fase berikutnya memindahkan progress, auth Nomor WA, SuperAdmin CMS, dan attempt history ke PostgreSQL sesuai grand design.
 
 ## Current Architecture Notes
 

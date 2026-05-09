@@ -37,3 +37,11 @@ test("test package visual baseline", async ({ page }) => {
   await page.getByRole("button", { name: /A Uncountable Noun/ }).first().click();
   await expect(page).toHaveScreenshot("test-package.png", screenshotOptions);
 });
+
+test("challenge package visual baseline", async ({ page }) => {
+  await resetState(page);
+  await page.getByRole("button", { name: "Tantangan", exact: true }).click();
+  await page.getByRole("button", { name: /Tantangan 01/ }).click();
+  await page.getByRole("button", { name: /A Uncountable Noun/ }).first().click();
+  await expect(page).toHaveScreenshot("challenge-package.png", screenshotOptions);
+});

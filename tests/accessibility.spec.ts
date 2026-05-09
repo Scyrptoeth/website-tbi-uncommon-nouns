@@ -38,6 +38,10 @@ test("core views have no serious axe violations", async ({ page }) => {
   await page.getByRole("button", { name: /^Tes$/ }).click();
   await expect(page.getByRole("heading", { name: "Noun Classification 01" })).toBeVisible();
   await expectNoSeriousA11yViolations(page);
+
+  await page.getByRole("button", { name: "Tantangan", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Tantangan 01" })).toBeVisible();
+  await expectNoSeriousA11yViolations(page);
 });
 
 test("keyboard and ARIA state are exposed for navigation, filters, and flipcards", async ({ page }) => {
@@ -77,6 +81,13 @@ test("main sidebar and package rail expose collapse controls", async ({ page }) 
   await page.getByRole("button", { name: "Tes", exact: true }).click();
   await page.getByRole("button", { name: "Collapse Daftar paket tes" }).click();
   await expect(page.getByRole("button", { name: "Expand Daftar paket tes" })).toHaveAttribute("aria-expanded", "false");
+
+  await page.getByRole("button", { name: "Tantangan", exact: true }).click();
+  await page.getByRole("button", { name: "Collapse Daftar paket tantangan" }).click();
+  await expect(page.getByRole("button", { name: "Expand Daftar paket tantangan" })).toHaveAttribute(
+    "aria-expanded",
+    "false",
+  );
 });
 
 test("reduced motion removes flip animation transforms", async ({ page }) => {
