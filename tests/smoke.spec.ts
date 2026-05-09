@@ -72,5 +72,6 @@ test("student learning surfaces render and accept interaction", async ({ page })
     await page.getByLabel(`Tampilkan paket ${range}`).click();
   }
   await page.getByRole("button", { name: /Noun Classification 41/ }).click();
-  await expect(page.getByText(/Dalam konteks science \(pengikisan\).*"abrasion"/)).toBeVisible();
+  await expect(page.getByText('Tentukan jenis noun berikut: "abrasion".')).toBeVisible();
+  await expect(page.getByText(/Dalam konteks science \(pengikisan\).*"abrasion"/)).toHaveCount(0);
 });

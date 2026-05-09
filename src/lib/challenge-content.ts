@@ -324,14 +324,7 @@ const challengeQuestion = (entry: NounEntry, packageSlug: string): Question => {
     id: packageSlug + "-" + entry.id,
     packageSlug,
     nounId: entry.id,
-    prompt:
-      "Dalam konteks " +
-      entry.topic +
-      " (" +
-      entry.meaning +
-      '), tentukan jenis noun berikut: "' +
-      entry.displayNoun +
-      '".',
+    prompt: 'Tentukan jenis noun berikut: "' + entry.displayNoun + '".',
     options: classificationOptions,
     answerKey,
     explanation:

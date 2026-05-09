@@ -65,7 +65,8 @@ test("advanced challenge content reactivates archived nouns as mixed packages", 
         "Uncountable Noun",
         "Countable Noun",
       ]);
-      expect(question.prompt).toContain("Dalam konteks");
+      expect(question.prompt).toMatch(/^Tentukan jenis noun berikut: ".+"\.$/);
+      expect(question.prompt).not.toContain("Dalam konteks");
       expect(question.explanation).toContain("Jawaban yang tepat");
     }
   }
@@ -118,7 +119,7 @@ test("learning packages integrate common and advanced content as packages 1 thro
     expect(item.questions.filter((question) => question.answerKey === "B")).toHaveLength(5);
   }
 
-  expect(learningPackages[40].questions[0].prompt).toContain("Dalam konteks");
+  expect(learningPackages[40].questions[0].prompt).toBe('Tentukan jenis noun berikut: "abrasion".');
   expect(learningPackages.flatMap((item) => item.questions).map((question) => question.nounId)).toHaveLength(
     new Set(learningPackages.flatMap((item) => item.questions).map((question) => question.nounId)).size,
   );
