@@ -11,16 +11,20 @@ test("student learning surfaces render and accept interaction", async ({ page })
     page.locator("section").filter({ hasText: "Flipcard Dibuka" }).getByText("0/600", { exact: true }),
   ).toBeVisible();
 
+  await page.getByRole("button", { name: /Pencarian/ }).click();
+  await expect(page.getByRole("heading", { name: "Daftar Noun" })).toBeVisible();
+  await page.getByLabel("Cari seluruh noun").fill("access");
+  await expect(page.getByRole("heading", { name: "access" })).toBeVisible();
+  await expect(page.getByText("akses")).toBeVisible();
+
   await page.getByRole("button", { name: /Materi/ }).click();
   await expect(page.getByRole("heading", { name: "Noun Classification 01" })).toBeVisible();
   await expect(page.getByText("1-10", { exact: true })).toBeVisible();
-  await page.getByLabel("Cari materi").fill("access");
   await expect(page.getByRole("heading", { name: "access" })).toBeVisible();
   for (const range of ["11 sampai 20", "21 sampai 30", "31 sampai 40", "41 sampai 50"]) {
     await page.getByLabel(`Tampilkan paket ${range}`).click();
   }
   await page.getByRole("button", { name: /Noun Classification 41/ }).click();
-  await page.getByLabel("Cari materi").fill("abrasion");
   await expect(page.getByRole("heading", { name: "abrasion" })).toBeVisible();
 
   await page.getByRole("button", { name: /Flipcard/ }).click();

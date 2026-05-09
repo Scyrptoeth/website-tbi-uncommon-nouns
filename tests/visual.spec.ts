@@ -21,8 +21,11 @@ test("dashboard visual baseline", async ({ page }) => {
 
 test("materi and flipcard visual baselines", async ({ page }) => {
   await resetState(page);
+  await page.getByRole("button", { name: /Pencarian/ }).click();
+  await page.getByLabel("Cari seluruh noun").fill("access");
+  await expect(page).toHaveScreenshot("search-access.png", screenshotOptions);
+
   await page.getByRole("button", { name: /Materi/ }).click();
-  await page.getByLabel("Cari materi").fill("access");
   await expect(page).toHaveScreenshot("materi-access.png", screenshotOptions);
 
   await page.getByRole("button", { name: /Flipcard/ }).click();

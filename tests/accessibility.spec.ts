@@ -27,6 +27,10 @@ test("core views have no serious axe violations", async ({ page }) => {
   await clearProgress(page);
   await expectNoSeriousA11yViolations(page);
 
+  await page.getByRole("button", { name: /Pencarian/ }).click();
+  await expect(page.getByRole("heading", { name: "Daftar Noun" })).toBeVisible();
+  await expectNoSeriousA11yViolations(page);
+
   await page.getByRole("button", { name: /Materi/ }).click();
   await expect(page.getByRole("heading", { name: "Noun Classification 01" })).toBeVisible();
   await expectNoSeriousA11yViolations(page);
@@ -44,13 +48,18 @@ test("keyboard and ARIA state are exposed for navigation, filters, and flipcards
   await clearProgress(page);
 
   await expect(page.getByRole("button", { name: "Dashboard", exact: true })).toHaveAttribute("aria-current", "page");
-  await page.getByRole("button", { name: "Materi", exact: true }).click();
-  await expect(page.getByRole("button", { name: "Materi", exact: true })).toHaveAttribute("aria-current", "page");
+  await page.getByRole("button", { name: "Pencarian", exact: true }).click();
+  await expect(page.getByRole("button", { name: "Pencarian", exact: true })).toHaveAttribute("aria-current", "page");
 
-  const search = page.getByLabel("Cari materi");
+  const search = page.getByLabel("Cari seluruh noun");
   await search.focus();
   await expect(search).toBeFocused();
   await expect(page.locator(".search-box")).toHaveCSS("outline-style", "solid");
+  await search.fill("access");
+  await expect(page.getByRole("heading", { name: "access" })).toBeVisible();
+
+  await page.getByRole("button", { name: "Materi", exact: true }).click();
+  await expect(page.getByRole("button", { name: "Materi", exact: true })).toHaveAttribute("aria-current", "page");
 
   await expect(page.getByRole("button", { name: "Semua" })).toHaveAttribute("aria-pressed", "true");
   await page.getByRole("button", { name: "Countable", exact: true }).click();

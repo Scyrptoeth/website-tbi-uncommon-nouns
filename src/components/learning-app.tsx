@@ -17,12 +17,12 @@ import {
   ShieldCheck,
   Sparkles,
 } from "lucide-react";
-import type { ComponentType } from "react";
+import type { ComponentType, ReactNode } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { type NounEntry, type NounType, type TestPackage } from "@/lib/content";
 import { learningNounEntries, learningPackages, learningStats } from "@/lib/learning-content";
 
-type View = "dashboard" | "materi" | "flipcard" | "tes" | "admin";
+type View = "dashboard" | "search" | "materi" | "flipcard" | "tes" | "admin";
 type Filter = "all" | NounType;
 type OptionKey = "A" | "B";
 
@@ -48,6 +48,7 @@ const storageKey = "tbi-common-noun-classifier-progress-v2";
 
 const views: Array<{ id: View; label: string; icon: ComponentType<{ size?: number }> }> = [
   { id: "dashboard", label: "Dashboard", icon: BarChart3 },
+  { id: "search", label: "Pencarian", icon: Search },
   { id: "materi", label: "Materi", icon: BookOpen },
   { id: "flipcard", label: "Flipcard", icon: Layers3 },
   { id: "tes", label: "Tes", icon: ClipboardCheck },
@@ -339,11 +340,69 @@ function Dashboard({
   );
 }
 
+function SearchPanel() {
+  const [query, setQuery] = useState("");
+  const normalizedQuery = query.trim().toLowerCase();
+  const rows = useMemo(() => {
+    const sortedEntries = [...learningNounEntries].sort((first, second) =>
+      first.displayNoun.localeCompare(second.displayNoun),
+    );
+
+    if (!normalizedQuery) return sortedEntries;
+
+    return sortedEntries.filter(
+      (entry) =>
+        entry.displayNoun.toLowerCase().includes(normalizedQuery) ||
+        entry.meaning.toLowerCase().includes(normalizedQuery),
+    );
+  }, [normalizedQuery]);
+
+  return (
+    <section className="space-y-6">
+      <header className="section-header">
+        <div>
+          <p className="eyebrow">Pencarian</p>
+          <h2>Daftar Noun</h2>
+        </div>
+        <div className="search-box">
+          <Search size={18} aria-hidden="true" />
+          <label className="sr-only" htmlFor="global-noun-search">
+            Cari seluruh noun
+          </label>
+          <input
+            id="global-noun-search"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Cari noun atau meaning"
+          />
+        </div>
+      </header>
+
+      <div className="search-result-meta" aria-live="polite">
+        <span>{rows.length}</span>
+        <p>noun ditemukan</p>
+      </div>
+
+      <div className="search-result-list">
+        {rows.map((entry) => (
+          <article className="search-result-row" key={entry.id}>
+            <div>
+              <h3>{entry.displayNoun}</h3>
+              <p>{entry.meaning}</p>
+            </div>
+            <TypeBadge type={entry.nounType} />
+          </article>
+        ))}
+        {rows.length === 0 ? <p className="empty-state">Tidak ada noun yang cocok.</p> : null}
+      </div>
+    </section>
+  );
+}
+
 function Materi({ progress }: { progress: ProgressState }) {
   const [selectedSlug, setSelectedSlug] = useState(learningPackages[0]?.slug ?? "");
   const [packageRailCollapsed, setPackageRailCollapsed] = useState(false);
   const [filter, setFilter] = useState<Filter>("all");
-  const [query, setQuery] = useState("");
   const selectedPackage = learningPackages.find((item) => item.slug === selectedSlug) ?? learningPackages[0];
   const packageEntries = useMemo(
     () => (selectedPackage ? getPackageEntries(selectedPackage) : []),
@@ -351,17 +410,8 @@ function Materi({ progress }: { progress: ProgressState }) {
   );
 
   const rows = useMemo(() => {
-    const normalized = query.trim().toLowerCase();
-    return packageEntries.filter((entry) => {
-      const typeMatch = filter === "all" || entry.nounType === filter;
-      const queryMatch =
-        !normalized ||
-        entry.displayNoun.toLowerCase().includes(normalized) ||
-        entry.meaning.toLowerCase().includes(normalized) ||
-        entry.topic.toLowerCase().includes(normalized);
-      return typeMatch && queryMatch;
-    });
-  }, [filter, packageEntries, query]);
+    return packageEntries.filter((entry) => filter === "all" || entry.nounType === filter);
+  }, [filter, packageEntries]);
 
   if (!selectedPackage) return null;
 
@@ -374,10 +424,7 @@ function Materi({ progress }: { progress: ProgressState }) {
         collapsed={packageRailCollapsed}
         progress={progress}
         subtitle={(item) => `${packageTypeLabel[item.packageType]} - ${item.questions.length} noun`}
-        onSelect={(slug) => {
-          setSelectedSlug(slug);
-          setQuery("");
-        }}
+        onSelect={setSelectedSlug}
         onToggle={() => setPackageRailCollapsed((value) => !value)}
       />
 
@@ -386,18 +433,6 @@ function Materi({ progress }: { progress: ProgressState }) {
           <div>
             <p className="eyebrow">Materi</p>
             <h2>{selectedPackage.title}</h2>
-          </div>
-          <div className="search-box">
-            <Search size={18} aria-hidden="true" />
-            <label className="sr-only" htmlFor="materi-search">
-              Cari materi
-            </label>
-            <input
-              id="materi-search"
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Cari noun dalam paket ini"
-            />
           </div>
         </header>
 
@@ -609,10 +644,12 @@ function AnswerProgressSummary({
   answeredItems,
   unansweredItems,
   total,
+  submitControl,
 }: {
   answeredItems: AnswerNumberItem[];
   unansweredItems: AnswerNumberItem[];
   total: number;
+  submitControl?: ReactNode;
 }) {
   return (
     <section className="answer-progress-summary" aria-label="Ringkasan progres jawaban">
@@ -629,6 +666,7 @@ function AnswerProgressSummary({
           <span>Belum dijawab</span>
           <strong>{unansweredItems.length}</strong>
         </div>
+        {submitControl ? <div className="answer-submit-slot">{submitControl}</div> : null}
       </div>
       <div className="answer-number-grid">
         <AnswerNumberGroup label="Nomor sudah dijawab" items={answeredItems} tone="done" />
@@ -756,11 +794,13 @@ function TestPanel({
               answeredItems={answeredItems}
               unansweredItems={unansweredItems}
               total={selectedPackage.questions.length}
+              submitControl={
+                <button className="primary-button" type="button" onClick={submit}>
+                  <ClipboardCheck size={18} aria-hidden="true" />
+                  Final submit
+                </button>
+              }
             />
-            <button className="primary-button" type="button" onClick={submit}>
-              <ClipboardCheck size={18} aria-hidden="true" />
-              Final submit
-            </button>
           </div>
         ) : null}
 
@@ -903,6 +943,7 @@ export function LearningApp() {
 
   const currentView = {
     dashboard: <Dashboard progress={progress} onJump={selectView} />,
+    search: <SearchPanel />,
     materi: <Materi progress={progress} />,
     flipcard: <Flipcard progress={progress} setProgress={setProgress} />,
     tes: <TestPanel key="tes" progress={progress} setProgress={setProgress} />,
