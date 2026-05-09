@@ -4,6 +4,7 @@ import {
   BarChart3,
   BookOpen,
   CheckCircle2,
+  CircleDashed,
   ChevronLeft,
   ChevronRight,
   ClipboardCheck,
@@ -17,7 +18,14 @@ import {
 } from "lucide-react";
 import type { ComponentType } from "react";
 import { useEffect, useMemo, useState } from "react";
-import { contentStats, nounEntries, testPackages, type NounType } from "@/lib/content";
+import {
+  contentStats,
+  nounEntries,
+  testPackages,
+  type NounEntry,
+  type NounType,
+  type TestPackage,
+} from "@/lib/content";
 
 type View = "dashboard" | "materi" | "flipcard" | "tes" | "admin";
 type Filter = "all" | NounType;
@@ -58,6 +66,18 @@ const nounTypeLabel: Record<NounType, string> = {
 
 const packageTypeLabel = {
   mixed: "Klasifikasi campuran",
+};
+
+const nounEntryById = new Map(nounEntries.map((entry) => [entry.id, entry]));
+
+const getPackageEntries = (item: TestPackage): NounEntry[] =>
+  item.questions
+    .map((question) => nounEntryById.get(question.nounId))
+    .filter((entry): entry is NounEntry => Boolean(entry));
+
+const scrollToTop = () => {
+  if (typeof window === "undefined") return;
+  window.scrollTo({ top: 0 });
 };
 
 const readProgress = (): ProgressState => {
@@ -126,6 +146,94 @@ function TypeBadge({ type }: { type: NounType }) {
   );
 }
 
+function PackageStatusIcon({
+  item,
+  progress,
+}: {
+  item: TestPackage;
+  progress: ProgressState;
+}) {
+  const isSubmitted = Boolean(progress.submitted[item.slug]);
+  const isDraft = Boolean(progress.drafts[item.slug]) && !isSubmitted;
+
+  if (isSubmitted) return <CheckCircle2 aria-hidden="true" />;
+  if (isDraft) return <CircleDashed aria-hidden="true" />;
+  return null;
+}
+
+const packageStatusLabel = (item: TestPackage, progress: ProgressState) => {
+  if (progress.submitted[item.slug]) return "sudah submit";
+  if (progress.drafts[item.slug]) return "belum selesai";
+  return "belum mulai";
+};
+
+function PackageRail({
+  label,
+  selectedSlug,
+  collapsed,
+  progress,
+  subtitle,
+  onSelect,
+  onToggle,
+}: {
+  label: string;
+  selectedSlug: string;
+  collapsed: boolean;
+  progress: ProgressState;
+  subtitle: (item: TestPackage) => string;
+  onSelect: (slug: string) => void;
+  onToggle: () => void;
+}) {
+  return (
+    <aside className={`package-rail ${collapsed ? "is-collapsed" : ""}`} aria-label={label}>
+      <div className="package-rail-header">
+        <div>
+          <p className="eyebrow">Paket</p>
+          <strong>{collapsed ? "Paket" : "Pilih paket"}</strong>
+        </div>
+        <button
+          className="rail-toggle"
+          type="button"
+          aria-expanded={!collapsed}
+          aria-label={collapsed ? `Expand ${label}` : `Collapse ${label}`}
+          onClick={onToggle}
+        >
+          {collapsed ? <ChevronRight size={18} aria-hidden="true" /> : <ChevronLeft size={18} aria-hidden="true" />}
+        </button>
+      </div>
+
+      <div className="package-list">
+        {testPackages.map((item) => {
+          const isActive = selectedSlug === item.slug;
+          return (
+            <button
+              key={item.slug}
+              type="button"
+              aria-current={isActive ? "true" : undefined}
+              aria-label={`${item.title}, ${subtitle(item)}, ${packageStatusLabel(item, progress)}`}
+              title={`${item.title} - ${subtitle(item)}`}
+              className={isActive ? "active" : ""}
+              onClick={() => {
+                onSelect(item.slug);
+                scrollToTop();
+              }}
+            >
+              <span className="package-compact-number" aria-hidden="true">
+                {String(item.order).padStart(2, "0")}
+              </span>
+              <span className="package-copy">
+                <strong>{item.title}</strong>
+                <small>{subtitle(item)}</small>
+              </span>
+              <PackageStatusIcon item={item} progress={progress} />
+            </button>
+          );
+        })}
+      </div>
+    </aside>
+  );
+}
+
 function Dashboard({
   progress,
   onJump,
@@ -187,13 +295,20 @@ function Dashboard({
   );
 }
 
-function Materi() {
+function Materi({ progress }: { progress: ProgressState }) {
+  const [selectedSlug, setSelectedSlug] = useState(testPackages[0]?.slug ?? "");
+  const [packageRailCollapsed, setPackageRailCollapsed] = useState(false);
   const [filter, setFilter] = useState<Filter>("all");
   const [query, setQuery] = useState("");
+  const selectedPackage = testPackages.find((item) => item.slug === selectedSlug) ?? testPackages[0];
+  const packageEntries = useMemo(
+    () => (selectedPackage ? getPackageEntries(selectedPackage) : []),
+    [selectedPackage],
+  );
 
   const rows = useMemo(() => {
     const normalized = query.trim().toLowerCase();
-    return nounEntries.filter((entry) => {
+    return packageEntries.filter((entry) => {
       const typeMatch = filter === "all" || entry.nounType === filter;
       const queryMatch =
         !normalized ||
@@ -202,70 +317,87 @@ function Materi() {
         entry.topic.toLowerCase().includes(normalized);
       return typeMatch && queryMatch;
     });
-  }, [filter, query]);
+  }, [filter, packageEntries, query]);
+
+  if (!selectedPackage) return null;
 
   return (
-    <div className="space-y-6">
-      <header className="section-header">
-        <div>
-          <p className="eyebrow">Materi</p>
-          <h2>Daftar noun alfabetik</h2>
-        </div>
-        <div className="search-box">
-          <Search size={18} aria-hidden="true" />
-          <label className="sr-only" htmlFor="materi-search">
-            Cari materi
-          </label>
-          <input
-            id="materi-search"
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder="Cari noun, arti, atau topik"
-          />
-        </div>
-      </header>
+    <div className={`learning-layout ${packageRailCollapsed ? "package-collapsed" : ""}`}>
+      <PackageRail
+        label="Daftar paket materi"
+        selectedSlug={selectedPackage.slug}
+        collapsed={packageRailCollapsed}
+        progress={progress}
+        subtitle={(item) => `${packageTypeLabel[item.packageType]} - ${item.questions.length} noun`}
+        onSelect={(slug) => {
+          setSelectedSlug(slug);
+          setQuery("");
+        }}
+        onToggle={() => setPackageRailCollapsed((value) => !value)}
+      />
 
-      <div className="segmented" role="group" aria-label="Filter materi">
-        {(["all", "uncountable", "countable"] as const).map((item) => (
-          <button
-            key={item}
-            type="button"
-            aria-pressed={filter === item}
-            className={filter === item ? "active" : ""}
-            onClick={() => setFilter(item)}
-          >
-            {item === "all" ? "Semua" : nounTypeLabel[item]}
-          </button>
-        ))}
-      </div>
+      <div className="space-y-6">
+        <header className="section-header">
+          <div>
+            <p className="eyebrow">Materi</p>
+            <h2>{selectedPackage.title}</h2>
+          </div>
+          <div className="search-box">
+            <Search size={18} aria-hidden="true" />
+            <label className="sr-only" htmlFor="materi-search">
+              Cari materi
+            </label>
+            <input
+              id="materi-search"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Cari noun dalam paket ini"
+            />
+          </div>
+        </header>
 
-      <div className="noun-list">
-        {rows.map((entry) => (
-          <article className="noun-row" key={entry.id}>
-            <div>
-              <div className="flex flex-wrap items-center gap-2">
-                <h3>{entry.displayNoun}</h3>
-                <TypeBadge type={entry.nounType} />
-                <span className="badge">{entry.topic}</span>
+        <div className="segmented" role="group" aria-label="Filter materi">
+          {(["all", "uncountable", "countable"] as const).map((item) => (
+            <button
+              key={item}
+              type="button"
+              aria-pressed={filter === item}
+              className={filter === item ? "active" : ""}
+              onClick={() => setFilter(item)}
+            >
+              {item === "all" ? "Semua" : nounTypeLabel[item]}
+            </button>
+          ))}
+        </div>
+
+        <div className="noun-list">
+          {rows.map((entry) => (
+            <article className="noun-row" key={entry.id}>
+              <div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <h3>{entry.displayNoun}</h3>
+                  <TypeBadge type={entry.nounType} />
+                  <span className="badge">{entry.topic}</span>
+                </div>
+                <p>{entry.meaning}</p>
               </div>
-              <p>{entry.meaning}</p>
-            </div>
-            <div className="noun-detail">
-              {entry.nounType === "uncountable" ? (
-                <>
-                  <span>Quantity</span>
-                  <strong>{entry.quantityExpression}</strong>
-                </>
-              ) : (
-                <>
-                  <span>Plural</span>
-                  <strong>{entry.pluralForm}</strong>
-                </>
-              )}
-            </div>
-            <p className="usage-note">{entry.usageNote}</p>
-          </article>
-        ))}
+              <div className="noun-detail">
+                {entry.nounType === "uncountable" ? (
+                  <>
+                    <span>Quantity</span>
+                    <strong>{entry.quantityExpression}</strong>
+                  </>
+                ) : (
+                  <>
+                    <span>Plural</span>
+                    <strong>{entry.pluralForm}</strong>
+                  </>
+                )}
+              </div>
+              <p className="usage-note">{entry.usageNote}</p>
+            </article>
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -278,13 +410,20 @@ function Flipcard({
   progress: ProgressState;
   setProgress: (progress: ProgressState) => void;
 }) {
+  const [selectedSlug, setSelectedSlug] = useState(testPackages[0]?.slug ?? "");
+  const [packageRailCollapsed, setPackageRailCollapsed] = useState(false);
   const [filter, setFilter] = useState<Filter>("all");
   const [index, setIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
+  const selectedPackage = testPackages.find((item) => item.slug === selectedSlug) ?? testPackages[0];
+  const packageEntries = useMemo(
+    () => (selectedPackage ? getPackageEntries(selectedPackage) : []),
+    [selectedPackage],
+  );
 
   const cards = useMemo(
-    () => nounEntries.filter((entry) => filter === "all" || entry.nounType === filter),
-    [filter],
+    () => packageEntries.filter((entry) => filter === "all" || entry.nounType === filter),
+    [filter, packageEntries],
   );
   const card = cards[index] ?? cards[0];
 
@@ -300,75 +439,151 @@ function Flipcard({
     setFlipped(false);
   };
 
-  if (!card) return null;
+  if (!selectedPackage || !card) return null;
 
   return (
-    <div className="space-y-6">
-      <header className="section-header">
-        <div>
-          <p className="eyebrow">Flipcard</p>
-          <h2>Active recall noun bank</h2>
-        </div>
-        <span className="font-mono text-sm text-[var(--muted)]">
-          {index + 1}/{cards.length}
-        </span>
-      </header>
+    <div className={`learning-layout ${packageRailCollapsed ? "package-collapsed" : ""}`}>
+      <PackageRail
+        label="Daftar paket flipcard"
+        selectedSlug={selectedPackage.slug}
+        collapsed={packageRailCollapsed}
+        progress={progress}
+        subtitle={(item) => `${packageTypeLabel[item.packageType]} - ${item.questions.length} noun`}
+        onSelect={(slug) => {
+          setSelectedSlug(slug);
+          setIndex(0);
+          setFlipped(false);
+        }}
+        onToggle={() => setPackageRailCollapsed((value) => !value)}
+      />
 
-      <div className="segmented" role="group" aria-label="Filter flipcard">
-        {(["all", "uncountable", "countable"] as const).map((item) => (
-          <button
-            key={item}
-            type="button"
-            aria-pressed={filter === item}
-            className={filter === item ? "active" : ""}
-            onClick={() => {
-              setFilter(item);
-              setIndex(0);
-              setFlipped(false);
-            }}
-          >
-            {item === "all" ? "Semua" : nounTypeLabel[item]}
-          </button>
-        ))}
-      </div>
-
-      <button
-        type="button"
-        className={`flipcard ${flipped ? "is-flipped" : ""}`}
-        onClick={() => setFlipped((value) => !value)}
-        aria-expanded={flipped}
-        aria-label={`Balik kartu ${card.displayNoun}`}
-      >
-        <span className="flip-face flip-front" aria-hidden={flipped}>
-          <TypeBadge type={card.nounType} />
-          <strong>{card.displayNoun}</strong>
-          <small>{card.topic}</small>
-        </span>
-        <span className="flip-face flip-back" aria-hidden={!flipped}>
-          <TypeBadge type={card.nounType} />
-          <strong>{card.meaning}</strong>
-          <span>
-            {card.nounType === "uncountable"
-              ? `Quantity expression: ${card.quantityExpression}`
-              : `Plural form: ${card.pluralForm}`}
+      <div className="space-y-6">
+        <header className="section-header">
+          <div>
+            <p className="eyebrow">Flipcard</p>
+            <h2>{selectedPackage.title}</h2>
+          </div>
+          <span className="font-mono text-sm text-[var(--muted)]">
+            {index + 1}/{cards.length}
           </span>
-          <small>{card.commonMistake}</small>
-        </span>
-      </button>
+        </header>
 
-      <div className="flex items-center justify-between gap-3">
-        <button className="icon-button" type="button" onClick={() => move(-1)} aria-label="Kartu sebelumnya">
-          <ChevronLeft aria-hidden="true" />
+        <div className="segmented" role="group" aria-label="Filter flipcard">
+          {(["all", "uncountable", "countable"] as const).map((item) => (
+            <button
+              key={item}
+              type="button"
+              aria-pressed={filter === item}
+              className={filter === item ? "active" : ""}
+              onClick={() => {
+                setFilter(item);
+                setIndex(0);
+                setFlipped(false);
+              }}
+            >
+              {item === "all" ? "Semua" : nounTypeLabel[item]}
+            </button>
+          ))}
+        </div>
+
+        <button
+          type="button"
+          className={`flipcard ${flipped ? "is-flipped" : ""}`}
+          onClick={() => setFlipped((value) => !value)}
+          aria-expanded={flipped}
+          aria-label={`Balik kartu ${card.displayNoun}`}
+        >
+          <span className="flip-face flip-front" aria-hidden={flipped}>
+            <TypeBadge type={card.nounType} />
+            <strong>{card.displayNoun}</strong>
+            <small>{card.topic}</small>
+          </span>
+          <span className="flip-face flip-back" aria-hidden={!flipped}>
+            <TypeBadge type={card.nounType} />
+            <strong>{card.meaning}</strong>
+            <span>
+              {card.nounType === "uncountable"
+                ? `Quantity expression: ${card.quantityExpression}`
+                : `Plural form: ${card.pluralForm}`}
+            </span>
+            <small>{card.commonMistake}</small>
+          </span>
         </button>
-        <button className="primary-button" type="button" onClick={() => setFlipped((value) => !value)}>
-          <Eye size={18} aria-hidden="true" />
-          Balik kartu
-        </button>
-        <button className="icon-button" type="button" onClick={() => move(1)} aria-label="Kartu berikutnya">
-          <ChevronRight aria-hidden="true" />
-        </button>
+
+        <div className="flex items-center justify-between gap-3">
+          <button className="icon-button" type="button" onClick={() => move(-1)} aria-label="Kartu sebelumnya">
+            <ChevronLeft aria-hidden="true" />
+          </button>
+          <button className="primary-button" type="button" onClick={() => setFlipped((value) => !value)}>
+            <Eye size={18} aria-hidden="true" />
+            Balik kartu
+          </button>
+          <button className="icon-button" type="button" onClick={() => move(1)} aria-label="Kartu berikutnya">
+            <ChevronRight aria-hidden="true" />
+          </button>
+        </div>
       </div>
     </div>
+  );
+}
+
+function AnswerNumberGroup({
+  label,
+  numbers,
+  tone,
+}: {
+  label: string;
+  numbers: number[];
+  tone: "done" | "pending";
+}) {
+  return (
+    <div className="answer-number-group">
+      <span>{label}</span>
+      <div>
+        {numbers.map((number) => (
+          <span
+            key={number}
+            className={`answer-number ${tone}`}
+            aria-label={`Soal ${number} ${label.toLowerCase()}`}
+          >
+            {number}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function AnswerProgressSummary({
+  answeredNumbers,
+  unansweredNumbers,
+  total,
+}: {
+  answeredNumbers: number[];
+  unansweredNumbers: number[];
+  total: number;
+}) {
+  return (
+    <section className="answer-progress-summary" aria-label="Ringkasan progres jawaban">
+      <div className="answer-stats">
+        <div>
+          <span>Total soal</span>
+          <strong>{total}</strong>
+        </div>
+        <div>
+          <span>Sudah dijawab</span>
+          <strong>{answeredNumbers.length}</strong>
+        </div>
+        <div>
+          <span>Belum dijawab</span>
+          <strong>{unansweredNumbers.length}</strong>
+        </div>
+      </div>
+      <div className="answer-number-grid">
+        <AnswerNumberGroup label="Nomor sudah dijawab" numbers={answeredNumbers} tone="done" />
+        <AnswerNumberGroup label="Nomor belum dijawab" numbers={unansweredNumbers} tone="pending" />
+      </div>
+    </section>
   );
 }
 
@@ -380,6 +595,7 @@ function TestPanel({
   setProgress: (progress: ProgressState) => void;
 }) {
   const [selectedSlug, setSelectedSlug] = useState(testPackages[0]?.slug ?? "");
+  const [packageRailCollapsed, setPackageRailCollapsed] = useState(false);
   const selectedPackage = testPackages.find((item) => item.slug === selectedSlug) ?? testPackages[0];
   const submitted = selectedPackage ? progress.submitted[selectedPackage.slug] : undefined;
   const draft = selectedPackage ? progress.drafts[selectedPackage.slug] : undefined;
@@ -391,19 +607,28 @@ function TestPanel({
 
   const saveDraft = (nextAnswers: Record<string, OptionKey>) => {
     if (submitted) return;
+    const nextDrafts = { ...progress.drafts };
+    if (Object.keys(nextAnswers).length === 0) {
+      delete nextDrafts[selectedPackage.slug];
+    } else {
+      nextDrafts[selectedPackage.slug] = { answers: nextAnswers };
+    }
+
     const next = {
       ...progress,
-      drafts: {
-        ...progress.drafts,
-        [selectedPackage.slug]: { answers: nextAnswers },
-      },
+      drafts: nextDrafts,
     };
     setProgress(next);
     writeProgress(next);
   };
 
   const chooseAnswer = (questionId: string, key: OptionKey) => {
-    const nextAnswers = { ...answers, [questionId]: key };
+    const nextAnswers = { ...answers };
+    if (nextAnswers[questionId] === key) {
+      delete nextAnswers[questionId];
+    } else {
+      nextAnswers[questionId] = key;
+    }
     setAnswerCache((current) => ({ ...current, [selectedPackage.slug]: nextAnswers }));
     saveDraft(nextAnswers);
   };
@@ -428,29 +653,24 @@ function TestPanel({
     writeProgress(next);
   };
 
+  const answeredNumbers = selectedPackage.questions
+    .map((question, index) => (answers[question.id] ? index + 1 : null))
+    .filter((number): number is number => number !== null);
+  const unansweredNumbers = selectedPackage.questions
+    .map((question, index) => (answers[question.id] ? null : index + 1))
+    .filter((number): number is number => number !== null);
+
   return (
-    <div className="grid gap-6 xl:grid-cols-[320px_minmax(0,1fr)]">
-      <aside className="package-list" aria-label="Daftar paket tes">
-        {testPackages.map((item) => {
-          const isSubmitted = Boolean(progress.submitted[item.slug]);
-          const isDraft = Boolean(progress.drafts[item.slug]) && !isSubmitted;
-          return (
-            <button
-              key={item.slug}
-              type="button"
-              aria-current={selectedSlug === item.slug ? "true" : undefined}
-              className={selectedSlug === item.slug ? "active" : ""}
-              onClick={() => setSelectedSlug(item.slug)}
-            >
-              <span>
-                <strong>{item.title}</strong>
-                <small>{packageTypeLabel[item.packageType]} - 10 soal</small>
-              </span>
-              {isSubmitted ? <CheckCircle2 aria-hidden="true" /> : isDraft ? <Sparkles aria-hidden="true" /> : null}
-            </button>
-          );
-        })}
-      </aside>
+    <div className={`learning-layout ${packageRailCollapsed ? "package-collapsed" : ""}`}>
+      <PackageRail
+        label="Daftar paket tes"
+        selectedSlug={selectedPackage.slug}
+        collapsed={packageRailCollapsed}
+        progress={progress}
+        subtitle={(item) => `${packageTypeLabel[item.packageType]} - ${item.questions.length} soal`}
+        onSelect={setSelectedSlug}
+        onToggle={() => setPackageRailCollapsed((value) => !value)}
+      />
 
       <section className="test-surface">
         <header className="section-header">
@@ -488,6 +708,7 @@ function TestPanel({
                         type="button"
                         disabled={Boolean(submitted)}
                         aria-pressed={isSelected}
+                        title={isSelected && !submitted ? "Klik ulang untuk membatalkan jawaban" : undefined}
                         className={[
                           "option-button",
                           isSelected ? "selected" : "",
@@ -521,9 +742,11 @@ function TestPanel({
 
         {!submitted ? (
           <div className="submit-bar">
-            <span className="font-mono text-sm text-[var(--muted)]">
-              {Object.keys(answers).length}/10 terjawab
-            </span>
+            <AnswerProgressSummary
+              answeredNumbers={answeredNumbers}
+              unansweredNumbers={unansweredNumbers}
+              total={selectedPackage.questions.length}
+            />
             <button className="primary-button" type="button" onClick={submit}>
               <ClipboardCheck size={18} aria-hidden="true" />
               Final submit
@@ -599,10 +822,16 @@ function AdminPanel({ progress }: { progress: ProgressState }) {
 export function LearningApp() {
   const [view, setView] = useState<View>("dashboard");
   const [progress, setProgress] = useState<ProgressState>(() => readProgress());
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
+  const selectView = (nextView: View) => {
+    setView(nextView);
+    scrollToTop();
+  };
 
   const currentView = {
-    dashboard: <Dashboard progress={progress} onJump={setView} />,
-    materi: <Materi />,
+    dashboard: <Dashboard progress={progress} onJump={selectView} />,
+    materi: <Materi progress={progress} />,
     flipcard: <Flipcard progress={progress} setProgress={setProgress} />,
     tes: <TestPanel progress={progress} setProgress={setProgress} />,
     admin: <AdminPanel progress={progress} />,
@@ -611,10 +840,21 @@ export function LearningApp() {
   return (
     <div className="min-h-dvh bg-[var(--paper)] text-[var(--ink)]">
       <div className="mx-auto flex min-h-dvh w-full max-w-[1440px] flex-col lg:flex-row">
-        <aside className="app-sidebar">
-          <div>
-            <p className="brand-kicker">Persiapantubel</p>
-            <strong>TBI Nouns</strong>
+        <aside className={`app-sidebar ${sidebarCollapsed ? "is-collapsed" : ""}`}>
+          <div className="sidebar-head">
+            <div className="brand-block">
+              <p className="brand-kicker">Persiapantubel</p>
+              <strong>TBI Nouns</strong>
+            </div>
+            <button
+              className="sidebar-toggle"
+              type="button"
+              aria-expanded={!sidebarCollapsed}
+              aria-label={sidebarCollapsed ? "Expand sidebar utama" : "Collapse sidebar utama"}
+              onClick={() => setSidebarCollapsed((value) => !value)}
+            >
+              {sidebarCollapsed ? <ChevronRight size={18} aria-hidden="true" /> : <ChevronLeft size={18} aria-hidden="true" />}
+            </button>
           </div>
           <nav aria-label="Navigasi utama">
             {views.map((item) => {
@@ -626,7 +866,8 @@ export function LearningApp() {
                   aria-label={item.label}
                   aria-current={view === item.id ? "page" : undefined}
                   className={view === item.id ? "active" : ""}
-                  onClick={() => setView(item.id)}
+                  onClick={() => selectView(item.id)}
+                  title={item.label}
                 >
                   <Icon size={18} aria-hidden="true" />
                   <span>{item.label}</span>

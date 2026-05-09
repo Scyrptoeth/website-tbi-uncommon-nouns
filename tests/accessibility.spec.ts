@@ -28,11 +28,11 @@ test("core views have no serious axe violations", async ({ page }) => {
   await expectNoSeriousA11yViolations(page);
 
   await page.getByRole("button", { name: /Materi/ }).click();
-  await expect(page.getByRole("heading", { name: "Daftar noun alfabetik" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Noun Classification 01" })).toBeVisible();
   await expectNoSeriousA11yViolations(page);
 
   await page.getByRole("button", { name: /Flipcard/ }).click();
-  await expect(page.getByRole("heading", { name: "Active recall noun bank" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Noun Classification 01" })).toBeVisible();
   await expectNoSeriousA11yViolations(page);
 
   await page.getByRole("button", { name: /^Tes$/ }).click();
@@ -43,9 +43,9 @@ test("core views have no serious axe violations", async ({ page }) => {
 test("keyboard and ARIA state are exposed for navigation, filters, and flipcards", async ({ page }) => {
   await clearProgress(page);
 
-  await expect(page.getByRole("button", { name: "Dashboard" })).toHaveAttribute("aria-current", "page");
-  await page.getByRole("button", { name: /Materi/ }).click();
-  await expect(page.getByRole("button", { name: "Materi" })).toHaveAttribute("aria-current", "page");
+  await expect(page.getByRole("button", { name: "Dashboard", exact: true })).toHaveAttribute("aria-current", "page");
+  await page.getByRole("button", { name: "Materi", exact: true }).click();
+  await expect(page.getByRole("button", { name: "Materi", exact: true })).toHaveAttribute("aria-current", "page");
 
   const search = page.getByLabel("Cari materi");
   await search.focus();
@@ -56,7 +56,7 @@ test("keyboard and ARIA state are exposed for navigation, filters, and flipcards
   await page.getByRole("button", { name: "Countable", exact: true }).click();
   await expect(page.getByRole("button", { name: "Countable", exact: true })).toHaveAttribute("aria-pressed", "true");
 
-  await page.getByRole("button", { name: /Flipcard/ }).click();
+  await page.getByRole("button", { name: "Flipcard", exact: true }).click();
   const flipcard = page.getByRole("button", { name: /Balik kartu access/ });
   await expect(flipcard).toHaveAttribute("aria-expanded", "false");
   await expect(page.locator(".flip-front")).toHaveAttribute("aria-hidden", "false");
@@ -65,6 +65,18 @@ test("keyboard and ARIA state are exposed for navigation, filters, and flipcards
   await expect(flipcard).toHaveAttribute("aria-expanded", "true");
   await expect(page.locator(".flip-front")).toHaveAttribute("aria-hidden", "true");
   await expect(page.locator(".flip-back")).toHaveAttribute("aria-hidden", "false");
+});
+
+test("main sidebar and package rail expose collapse controls", async ({ page }) => {
+  await clearProgress(page);
+
+  await page.getByRole("button", { name: "Collapse sidebar utama" }).click();
+  await expect(page.getByRole("button", { name: "Expand sidebar utama" })).toHaveAttribute("aria-expanded", "false");
+  await page.getByRole("button", { name: "Expand sidebar utama" }).click();
+
+  await page.getByRole("button", { name: "Tes", exact: true }).click();
+  await page.getByRole("button", { name: "Collapse Daftar paket tes" }).click();
+  await expect(page.getByRole("button", { name: "Expand Daftar paket tes" })).toHaveAttribute("aria-expanded", "false");
 });
 
 test("reduced motion removes flip animation transforms", async ({ page }) => {

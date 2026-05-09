@@ -72,6 +72,17 @@ input:focus-visible {
   backdrop-filter: blur(14px);
 }
 
+.sidebar-head {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.brand-block {
+  min-width: 0;
+}
+
 .brand-kicker,
 .eyebrow {
   display: block;
@@ -88,6 +99,18 @@ input:focus-visible {
   margin-top: 4px;
   font-size: 1.25rem;
   line-height: 1.1;
+}
+
+.sidebar-toggle,
+.rail-toggle {
+  display: grid;
+  min-width: 44px;
+  min-height: 44px;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--ink);
 }
 
 .app-sidebar nav {
@@ -117,6 +140,15 @@ input:focus-visible {
   border-color: var(--ink);
   background: var(--ink);
   color: var(--surface);
+}
+
+.app-sidebar.is-collapsed .brand-block,
+.app-sidebar.is-collapsed nav button span {
+  display: none;
+}
+
+.app-sidebar.is-collapsed nav {
+  grid-template-columns: repeat(5, minmax(44px, 1fr));
 }
 
 .dashboard-hero {
@@ -420,6 +452,42 @@ input:focus-visible {
   transform: rotateY(0deg);
 }
 
+.learning-layout {
+  display: grid;
+  gap: 24px;
+}
+
+.package-rail {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+}
+
+.package-rail-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  padding: 12px;
+}
+
+.package-rail-header strong {
+  display: block;
+  margin-top: 4px;
+}
+
+.package-rail.is-collapsed .package-rail-header {
+  justify-content: center;
+  padding: 8px;
+}
+
+.package-rail.is-collapsed .package-rail-header > div {
+  display: none;
+}
+
 .package-list {
   display: grid;
   align-content: start;
@@ -439,6 +507,21 @@ input:focus-visible {
   text-align: left;
 }
 
+.package-compact-number {
+  display: none;
+  font-family: var(--font-mono), monospace;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.package-copy {
+  min-width: 0;
+}
+
+.package-copy strong {
+  display: block;
+}
+
 .package-list button.active {
   border-color: var(--ink);
   background: var(--ink);
@@ -453,6 +536,21 @@ input:focus-visible {
 
 .package-list button.active small {
   color: rgba(255, 255, 255, 0.86);
+}
+
+.package-rail.is-collapsed .package-list button {
+  min-height: 52px;
+  justify-content: center;
+  padding: 10px;
+}
+
+.package-rail.is-collapsed .package-copy,
+.package-rail.is-collapsed .package-list svg {
+  display: none;
+}
+
+.package-rail.is-collapsed .package-compact-number {
+  display: inline;
 }
 
 .test-surface {
@@ -515,16 +613,29 @@ input:focus-visible {
 
 .option-button.selected {
   border-color: var(--ink);
+  background: var(--ink);
+  color: var(--surface);
+}
+
+.option-button.selected span {
+  border-color: rgba(255, 255, 255, 0.54);
 }
 
 .option-button.correct {
   border-color: var(--success);
   background: color-mix(in srgb, var(--success), white 88%);
+  color: var(--ink);
 }
 
 .option-button.wrong {
   border-color: var(--danger);
   background: color-mix(in srgb, var(--danger), white 88%);
+  color: var(--ink);
+}
+
+.option-button.correct span,
+.option-button.wrong span {
+  border-color: currentColor;
 }
 
 .explanation {
@@ -551,18 +662,83 @@ input:focus-visible {
 }
 
 .submit-bar {
-  position: sticky;
-  bottom: 12px;
   margin-top: 18px;
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: stretch;
   justify-content: space-between;
   gap: 12px;
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: rgba(255, 253, 247, 0.94);
+  background: var(--surface);
   padding: 12px;
-  backdrop-filter: blur(12px);
+}
+
+.answer-progress-summary {
+  display: grid;
+  min-width: 0;
+  flex: 1;
+  gap: 12px;
+}
+
+.answer-stats {
+  display: grid;
+  gap: 8px;
+}
+
+.answer-stats > div {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-strong);
+  padding: 10px;
+}
+
+.answer-stats span,
+.answer-number-group > span {
+  display: block;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.answer-stats strong {
+  display: block;
+  margin-top: 4px;
+  font-family: var(--font-mono), monospace;
+  font-size: 1.25rem;
+}
+
+.answer-number-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.answer-number-group div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.answer-number {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border-radius: 999px;
+  font-family: var(--font-mono), monospace;
+  font-size: 0.85rem;
+}
+
+.answer-number.done {
+  border: 1px solid color-mix(in srgb, var(--success), white 35%);
+  background: color-mix(in srgb, var(--success), white 84%);
+  color: #144631;
+}
+
+.answer-number.pending {
+  border: 1px solid color-mix(in srgb, var(--accent-amber), white 28%);
+  background: color-mix(in srgb, var(--accent-amber), white 88%);
+  color: #7c4d08;
 }
 
 .sr-only {
@@ -602,6 +778,19 @@ input:focus-visible {
   .option-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .answer-stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .answer-number-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .submit-bar {
+    flex-direction: row;
+    align-items: end;
+  }
 }
 @media (min-width: 1024px) {
   .app-sidebar {
@@ -610,6 +799,15 @@ input:focus-visible {
     border-right: 1px solid var(--line);
     border-bottom: 0;
     padding: 28px 16px;
+  }
+
+  .app-sidebar.is-collapsed {
+    width: 88px;
+    padding-inline: 16px;
+  }
+
+  .app-sidebar.is-collapsed .sidebar-head {
+    justify-content: center;
   }
 
   .app-sidebar nav {
@@ -622,6 +820,25 @@ input:focus-visible {
 
   .app-sidebar nav button span {
     display: inline;
+  }
+
+  .app-sidebar.is-collapsed nav {
+    grid-template-columns: 1fr;
+  }
+
+  .app-sidebar.is-collapsed nav button {
+    justify-content: center;
+  }
+}
+
+@media (min-width: 1280px) {
+  .learning-layout {
+    grid-template-columns: 320px minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .learning-layout.package-collapsed {
+    grid-template-columns: 72px minmax(0, 1fr);
   }
 }
 

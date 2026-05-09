@@ -11,10 +11,12 @@ test("student learning surfaces render and accept interaction", async ({ page })
   ).toBeVisible();
 
   await page.getByRole("button", { name: /Materi/ }).click();
-  await page.getByLabel("Cari materi").fill("water");
-  await expect(page.getByRole("heading", { name: "water" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Noun Classification 01" })).toBeVisible();
+  await page.getByLabel("Cari materi").fill("access");
+  await expect(page.getByRole("heading", { name: "access" })).toBeVisible();
 
   await page.getByRole("button", { name: /Flipcard/ }).click();
+  await expect(page.getByRole("heading", { name: "Noun Classification 01" })).toBeVisible();
   await expect(page.getByRole("button", { name: /Balik kartu access/ })).toBeVisible();
   await page.getByRole("button", { name: "Balik kartu", exact: true }).click();
   await expect(page.getByText("akses")).toBeVisible();
@@ -24,5 +26,9 @@ test("student learning surfaces render and accept interaction", async ({ page })
   await expect(page.getByRole("button", { name: /A Uncountable Noun/ }).first()).toBeVisible();
   await expect(page.getByRole("button", { name: /B Countable Noun/ }).first()).toBeVisible();
   await page.locator(".option-button").first().click();
-  await expect(page.getByText(/1\/10 terjawab/)).toBeVisible();
+  await expect(page.getByText("Sudah dijawab", { exact: true })).toBeVisible();
+  await expect(page.getByLabel("Soal 1 nomor sudah dijawab")).toBeVisible();
+  await page.locator(".option-button").first().click();
+  await expect(page.getByText("Belum dijawab", { exact: true })).toBeVisible();
+  await expect(page.getByLabel("Soal 1 nomor belum dijawab")).toBeVisible();
 });

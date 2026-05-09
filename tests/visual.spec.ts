@@ -22,8 +22,8 @@ test("dashboard visual baseline", async ({ page }) => {
 test("materi and flipcard visual baselines", async ({ page }) => {
   await resetState(page);
   await page.getByRole("button", { name: /Materi/ }).click();
-  await page.getByLabel("Cari materi").fill("paper");
-  await expect(page).toHaveScreenshot("materi-paper.png", screenshotOptions);
+  await page.getByLabel("Cari materi").fill("access");
+  await expect(page).toHaveScreenshot("materi-access.png", screenshotOptions);
 
   await page.getByRole("button", { name: /Flipcard/ }).click();
   await page.getByRole("button", { name: /Balik kartu access/ }).click();
